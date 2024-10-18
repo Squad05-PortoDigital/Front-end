@@ -5,6 +5,19 @@ const chatbotToggler = document.querySelector('.chatbot-toggler');
 const chatbotCloseBtn = document.querySelector('.close-btn');
 const fileInput = document.getElementById('fileInput');
 const formHour = document.getElementById('formHour');
+const btnHourRequested = document.querySelector('#btn-send-hourRequested');
+
+function handleBtnHour() {
+    btnHourRequested.addEventListener('click', (e) => {
+        e.preventDefault();
+        const hourRequested = document.querySelector('#hour').value.trim();
+        const [hour, minute] = hourRequested.split(":");
+        chatBox.appendChild(createChatLi(`${hour} hora e ${minute} minuto.`, "outgoing"));
+        btnHourRequested.disabled = true;
+    });
+}
+
+handleBtnHour();
 
 const options = {
     1: "Justificativa de faltas",
@@ -66,6 +79,13 @@ function handleChangeInputFile() {
         } else {
             return;
         }
+    });
+}
+
+function handleBtnRequestedHour() {
+    btnHourRequested.addEventListener('submit', (e) => {
+        e.preventDefault();
+        console.log('click');
     });
 }
 
