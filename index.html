@@ -48,9 +48,42 @@
 
             <input type="file" id="fileInput" class="form-control" style="display: none;" />
 
+            <!-- FORM HOUR -->
             <form action="/submit" method="POST" id="formHour" style="display: none;" class="py-2">
                 <input type="time" id="hour" name="hour" class="form-control" required>
                 <button type="submit" class="btn btn-primary mt-3" id="btn-send-hourRequested">Enviar</button>
+            </form>
+
+            <!-- FORM DATE -->
+            <form action="/submit" method="POST" id="formDate" style="display: none;" class="py-2">
+                <input type="date" id="date" name="date" class="form-control" required>
+                <button type="submit" class="btn btn-primary mt-3" id="btn-send-dateInsert">Enviar</button>
+            </form>
+
+            <!-- FORM Profession -->
+            <form action="/submit" method="POST" id="formProfission" style="display: none;" class="py-2">
+                <select id="profission" class="form-select">
+                  <option value="analista-rh">Analista de Recursos Humanos</option>
+                  <option value="assistente-adm">Assistente Administrativo</option>
+                  <option value="coordenador-rh">Coordenador de RH</option>
+                  <option value="tecnico-seguranca">Técnico de Segurança do Trabalho</option>
+                  <option value="gerente-projetos">Gerente de Projetos</option>
+                  <option value="analista-financeiro">Analista Financeiro</option>
+                  <option value="desenvolvedor-software">Desenvolvedor de Software</option>
+                  <option value="coordenador-ti">Coordenador de TI</option>
+                  <option value="engenheiro-producao">Engenheiro de Produção</option>
+                  <option value="auxiliar-logistica">Auxiliar de Logística</option>
+                  <option value="supervisor-vendas">Supervisor de Vendas</option>
+                  <option value="consultor-rh">Consultor de RH</option>
+                  <option value="diretor-comercial">Diretor Comercial</option>
+                  <option value="especialista-recrutamento">Especialista em Recrutamento e Seleção</option>
+                  <option value="tecnico-administracao">Técnico em Administração</option>
+                  <option value="operador-maquinas">Operador de Máquinas</option>
+                  <option value="contador">Contador</option>
+                  <option value="advogado-trabalhista">Advogado Trabalhista</option>
+                  <option value="coordenador-treinamento">Coordenador de Treinamento e Desenvolvimento</option>
+                </select>  
+                <button type="submit" id="btn-send-profission" class="btn btn-primary mt-3">Enviar</button>
             </form>
         </ul>
       </div>
