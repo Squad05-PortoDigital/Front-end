@@ -11,11 +11,19 @@ const btnHourRequested = document.querySelector('#btn-send-hourRequested');
 const btnDateInsert = document.querySelector('#btn-send-dateInsert');
 const btnSendProfission = document.querySelector('#btn-send-profission');
 
+const btnGroupUrgency = document.querySelector('#btns-groupUrgency');
+const buttonsNivelUrgency = document.querySelectorAll('#btnUrgency');
+
+const buttonGroupStatus = document.querySelector('#btns-groupStatus');
+const buttonNivelStatus = document.querySelectorAll('#btnStatus');
+
 let userEmail = ""; // Variável global para armazenar o email
 let profissionSelected = ""; // Variável global para armazenar o cargo
 let detailsRequest = ""; // Armazena o detalhes da solicitação
 let selectedInitialOption = "";
-let userDate = ""; 
+let userDate = "";
+let nivelUrgencyRequest = "";
+let nivelStatusRequested = "";
 
 async function data() {
     const response = await fetch('http://localhost:8080/funcionarios');
@@ -34,6 +42,8 @@ function handleRequest() {
         request: detailsRequest,
         tipo_processo: selectedInitialOption,
         data_solicitacao: userDate,
+        urgencia: nivelUrgencyRequest,
+        status: nivelStatusRequested,
     };
 
     console.log(`nome: ${data.name}`);
@@ -43,7 +53,46 @@ function handleRequest() {
     console.log(`detalhes da solicitação: ${data.request}`);
     console.log(`Tipo de processo: ${selectedInitialOption}`);
     console.log(`Data de processo: ${userDate}`);
+    console.log(`Urgência: ${nivelUrgencyRequest}`);
+    console.log(`Nível: ${nivelStatusRequested}`);
 }
+
+function handleGroupBtnsUrgency() {
+    buttonsNivelUrgency.forEach((button, index) => {
+        button.addEventListener('click', () => {
+            const buttonText = button.textContent;
+            nivelUrgencyRequest = buttonText;
+            chatBox.appendChild(createChatLi(buttonText, "outgoing"));
+
+            buttonsNivelUrgency.forEach((btn) => {
+                btn.disabled = true;
+            });
+
+            chatBox.appendChild(createChatLi("Obrigado. Qual é o status da solicitação?", "incoming"));
+            buttonGroupStatus.style.display = 'block';
+            chatBox.appendChild(buttonGroupStatus);
+        })
+    });
+}
+
+function handleGroupBtnsStatus() {
+    buttonNivelStatus.forEach((button, index) => {
+        button.addEventListener('click', () => {
+            const buttonText = button.textContent;
+            nivelStatusRequested = buttonText;
+            chatBox.appendChild(createChatLi(buttonText, "outgoing"));
+
+            buttonNivelStatus.forEach((btn) => {
+                btn.disabled = true;
+            });
+
+            handleRequest();
+        })
+    });
+}
+
+handleGroupBtnsUrgency();
+handleGroupBtnsStatus();
 
 function handleBtnHour() {
     btnHourRequested.addEventListener('click', (e) => {
@@ -62,7 +111,10 @@ function handleBtnDate() {
         userDate = DateInsert;
         chatBox.appendChild(createChatLi(DateInsert, "outgoing"));
         btnDateInsert.disabled = true;
-        handleRequest();
+        chatBox.appendChild(createChatLi("Obrigado. Qual é o nível de urgência da sua solicitação?", "incoming"));
+        
+        btnGroupUrgency.style.display = 'block';
+        chatBox.appendChild(btnGroupUrgency);
     });
 }
 
@@ -163,7 +215,6 @@ function handleChangeInputFile() {
 function handleBtnRequestedHour() {
     btnHourRequested.addEventListener('submit', (e) => {
         e.preventDefault();
-        console.log('click');
     });
 }
 
@@ -258,7 +309,6 @@ const handleChat = () => {
         formDate.style.display = 'block';
         chatBox.appendChild(formDate);
     }
-
 
     // Verificação da seleção de opção principal
     if (!isNaN(parseInt(userMessage, 10)) && options[userMessage] && !awaitingMedicalCertificateChoice && !awaitRequestedHour) {
@@ -411,18 +461,18 @@ const handleChat = () => {
     // }
 
     // Verificação para a data
-    else if (selectedOption === '1' && userCpf !== "" && absenceDate === "" && userMessage.length > 0) {
-        const datePattern = /^\d{2}-\d{2}-\d{4}$/;
-        if (datePattern.test(userMessage)) {
-            absenceDate = userMessage; // Armazena a data
-            chatBox.appendChild(createChatLi(userMessage, "outgoing"));
-            // chatBox.appendChild(createChatLi(`Sua falta no dia ${absenceDate} foi registrada com sucesso. Por favor, agora nos informe o motivo da sua ausência em ${absenceDate}.`, "incoming"));
-        } else {
-            // chatBox.appendChild(createChatLi("Por favor, informe a data corretamente no formato DD-MM-YYYY.", "incoming"));
-        }
-        chatInput.value = '';
-        chatBox.scrollTo(0, chatBox.scrollHeight);
-    }
+    // else if (selectedOption === '1' && userCpf !== "" && absenceDate === "" && userMessage.length > 0) {
+    //     const datePattern = /^\d{2}-\d{2}-\d{4}$/;
+    //     if (datePattern.test(userMessage)) {
+    //         absenceDate = userMessage; // Armazena a data
+    //         chatBox.appendChild(createChatLi(userMessage, "outgoing"));
+    //         // chatBox.appendChild(createChatLi(`Sua falta no dia ${absenceDate} foi registrada com sucesso. Por favor, agora nos informe o motivo da sua ausência em ${absenceDate}.`, "incoming"));
+    //     } else {
+    //         // chatBox.appendChild(createChatLi("Por favor, informe a data corretamente no formato DD-MM-YYYY.", "incoming"));
+    //     }
+    //     chatInput.value = '';
+    //     chatBox.scrollTo(0, chatBox.scrollHeight);
+    // }
 
     // Verificação para o motivo da falta
     else if (selectedOption === '1' && absenceDate !== "" && absenceReason === "" && userMessage.length > 0) {
