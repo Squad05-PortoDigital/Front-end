@@ -24,14 +24,29 @@ let selectedInitialOption = "";
 let userDate = "";
 let nivelUrgencyRequest = "";
 let nivelStatusRequested = "";
+let funcionarioId = "";
 
-async function data() {
+async function dataFuncionarios() {
     const response = await fetch('http://localhost:8080/funcionarios');
     const dataJson = await response.json();
     console.log(dataJson);
 }
 
-data();
+async function dataProcessos() {
+    const response = await fetch('http://localhost:8080/processos');
+    const dataJson = await response.json();
+    console.log(dataJson);
+}
+
+async function getFuncionarioPerId() {
+    const response = await fetch('http://localhost:8080/funcionarios/35');
+    const dataJson = await response.json();
+    console.log(dataJson);
+}
+
+// getFuncionarioPerId();
+dataFuncionarios();
+dataProcessos();
 
 function handleRequest() {
     const data = {
@@ -87,6 +102,8 @@ function handleGroupBtnsStatus() {
             });
 
             handleRequest();
+            cadastrarFuncionario();
+            sendUserDataProcessos();
         })
     });
 }
@@ -218,7 +235,7 @@ function handleBtnRequestedHour() {
     });
 }
 
-async function sendUserData() {
+async function cadastrarFuncionario() {
 
     const removeFormatCpf = userCpf.replace(/\./g, '').replace(/-/g, '');
 
@@ -231,6 +248,41 @@ async function sendUserData() {
 
     try {
         const response = await fetch('http://localhost:8080/funcionarios', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+    });
+
+    if (response.ok) {
+        const funcionario = await response.json();
+        funcionarioId = funcionario.id_funcionario;  // Armazena o ID retornado
+        console.log(`Funcionário cadastrado com sucesso. ID: ${funcionarioId}`);
+        
+        // Agora que o funcionário está cadastrado, pode prosseguir com o processo
+        sendUserDataProcessos();
+    } else {
+        console.error('Erro ao cadastrar funcionário');
+    }
+
+    } catch(e) {
+        console.log('Erro ao enviar os dados', e);
+    }
+}
+
+async function sendUserDataProcessos() {
+    const userData = {
+        descricao: detailsRequest,
+        tipo_processo: selectedInitialOption,
+        data_solicitacao: userDate,
+        urgencia: nivelUrgencyRequest,
+        status: nivelStatusRequested,
+        id_funcionario: funcionarioId,
+    };
+
+    try {
+        const response = await fetch('http://localhost:8080/processos', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
