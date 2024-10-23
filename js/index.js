@@ -21,6 +21,7 @@ const buttonGroupCertificationMedicate = document.getElementById('btns-groupCert
 const buttonCertificationMedicate = document.querySelectorAll('#btnCertificate');
 
 const formUpload = document.getElementById('uploadForm');
+const alert_feedback = document.getElementById('alert-feedback');
 
 let userEmail = ""; // Variável global para armazenar o email
 let profissionSelected = ""; // Variável global para armazenar o cargo
@@ -79,7 +80,7 @@ function handleGroupBtnsUrgency() {
             const buttonText = button.textContent;
             nivelUrgencyRequest = buttonText;
             chatBox.appendChild(createChatLi(buttonText, "outgoing"));
-
+        
             buttonsNivelUrgency.forEach((btn) => {
                 btn.disabled = true;
             });
@@ -331,7 +332,7 @@ async function sendFile(idOcorrencia) {
     
         // Adicionando o arquivo e o ID da ocorrência ao FormData
         formData.append('file', selectedFile);
-        formData.append('ocorrenciaId', idOcorrencia); // Usando a variável global
+        formData.append('ocorrenciaId', idOcorrencia);
     
         console.log(selectedFile);
     
@@ -348,6 +349,8 @@ async function sendFile(idOcorrencia) {
         })
         .then(data => {
             console.log('Upload realizado com sucesso:', data); // Aqui você pode ver a resposta do servidor
+            document.getElementById('btn-send-file').disabled = true;
+            chatBox.appendChild(createChatLi("Sua justificativa foi registrada com sucesso!", "incoming"));
         })
         .catch(error => {
             console.error('Erro ao fazer upload:', error);
@@ -357,7 +360,6 @@ async function sendFile(idOcorrencia) {
 
 sendFile();
 handleMessageFirst(options);
-
 
 function formatCpf(cpf) {
     cpf = cpf.replace(/\D/g, ''); // Remove todos os caracteres não numéricos

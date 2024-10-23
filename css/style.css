@@ -183,11 +183,6 @@
     margin: 10px 0;
     padding: 8px;
 }
-
-.alert svg {
-    width: 20px;
-    height: 20px;
-  }
   
 
 @media (min-width: 768px) and (min-width: 992px)  {
