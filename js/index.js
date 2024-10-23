@@ -45,13 +45,6 @@ async function dataProcessos() {
     console.log(dataJson);
 }
 
-// async function getUpload() {
-//     const response = await fetch('http://localhost:8080/processos/upload');
-//     const dataJson = await response.json();
-//     console.log(dataJson);
-// }
-
-// getUpload();
 dataFuncionarios();
 dataProcessos();
 
@@ -114,20 +107,6 @@ function handleGroupBtnsStatus() {
             buttonGroupCertificationMedicate.style.display = 'block';
             chatBox.appendChild(buttonGroupCertificationMedicate);
             handleBtnCertificateMedicial();
-
-            // if(awaitingMedicalCertificateChoice && (userMessage === '1' || userMessage === '2')) {
-            //     if (userMessage === '1') { // Sim - Anexar atestado
-            //         chatBox.appendChild(createChatLi("Por favor, anexe o atestado.", "incoming"));
-            //         fileInput.style.display = 'block';
-            //         chatBox.appendChild(fileInput);
-            //         awaitingMedicalCertificateChoice = false;
-            //         handleChangeInputFile();
-            //     } else {
-            //         chatBox.appendChild(createChatLi("Sua justificativa foi registrada com sucesso!", "incoming"));
-            //     }
-            // }
-            // cadastrarFuncionario();
-            // sendUserDataProcessos();
         })
     });
 }
@@ -142,23 +121,6 @@ function handleBtnCertificateMedicial() {
                 chatBox.appendChild(createChatLi("Por favor, anexe o atestado.", "incoming"));
                 formUpload.style.display = 'block';
                 chatBox.appendChild(formUpload);
-
-                // fileInput.addEventListener('change', () => {
-                //     const file = fileInput.files[0];
-                //     selectedFile = file;
-
-                //     if (file) {
-                //         const validExtensions = ['image/png', 'image/jpeg', 'application/pdf'];
-                //         if (!validExtensions.includes(file.type)) {
-                //             chatBox.appendChild(createChatLi("Erro: O arquivo deve ser PNG, JPG ou PDF.", "incoming", true));
-                //             fileInput.value = "";
-                //         } else {
-                //             // O arquivo é válido, agora você pode enviar os dados
-                //             cadastrarFuncionario();
-                //             sendUserDataProcessos();
-                //         }
-                //     }
-                // });
             } else {
                 chatBox.appendChild(createChatLi("Sua justificativa foi registrada com sucesso!", "incoming"));
                 cadastrarFuncionario();
@@ -220,22 +182,6 @@ function handleBtnProfission() {
         awaitingEmail = true;
     });
 }
-
-function convertDate(data) {
-    let partes = data.split('/');
-    
-    // Atribui as partes da data (ano, mês, dia)
-    let ano = partes[0];
-    let mes = partes[1];
-    let dia = partes[2];
-
-    // Retorna a data no formato dd/mm/yyyy
-    return `${dia}-${mes}-${ano}`;
-}
-
-// const date = "2024/10/23";
-// const new_date = convertDate(date);
-// console.log(new_date);
 
 handleBtnHour();
 handleBtnDate();
@@ -349,6 +295,7 @@ async function sendUserDataProcessos(funcionarioId) {
         data_solicitacao: userDate,
         urgencia: nivelUrgencyRequest,
         status: nivelStatusRequested,
+        id_destinatario: funcionarioId,
         id_funcionario: funcionarioId,
     };
 
@@ -372,12 +319,6 @@ async function sendUserDataProcessos(funcionarioId) {
         console.log('Erro ao enviar os dados', e);
     }
 }
-
-// document.getElementById('fileInput').addEventListener('change', function() {
-//     selectedFile = this.files[0];
-// });
-
-// // Adiciona o listener ao formulário
 
 function sendFile() {
 
@@ -415,8 +356,6 @@ function sendFile() {
 }
 
 sendFile();
-
-
 handleMessageFirst(options);
 
 
