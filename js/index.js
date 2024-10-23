@@ -165,6 +165,9 @@ function handleBtnCertificateMedicial() {
                 sendUserDataProcessos();
             }
 
+            cadastrarFuncionario();
+            sendUserDataProcessos();
+
             buttonCertificationMedicate.forEach((btn) => {
                 btn.disabled = true;
             });
@@ -217,6 +220,22 @@ function handleBtnProfission() {
         awaitingEmail = true;
     });
 }
+
+function convertDate(data) {
+    let partes = data.split('/');
+    
+    // Atribui as partes da data (ano, mês, dia)
+    let ano = partes[0];
+    let mes = partes[1];
+    let dia = partes[2];
+
+    // Retorna a data no formato dd/mm/yyyy
+    return `${dia}-${mes}-${ano}`;
+}
+
+// const date = "2024/10/23";
+// const new_date = convertDate(date);
+// console.log(new_date);
 
 handleBtnHour();
 handleBtnDate();
@@ -311,10 +330,8 @@ async function cadastrarFuncionario() {
 
     if (response.ok) {
         const funcionario = await response.json();
-        funcionarioId = funcionario.id_funcionario;  // Armazena o ID retornado
-        
-        // Agora que o funcionário está cadastrado, pode prosseguir com o processo
-        sendUserDataProcessos();
+        const funcionario_id = funcionario.id_funcionario;
+        await sendUserDataProcessos(funcionario_id);
     } else {
         console.error('Erro ao cadastrar funcionário');
     }
@@ -325,14 +342,14 @@ async function cadastrarFuncionario() {
 }
 
 
-async function sendUserDataProcessos() {
+async function sendUserDataProcessos(funcionarioId) {
     const userData = {
         descricao: detailsRequest,
         tipo_processo: selectedInitialOption,
         data_solicitacao: userDate,
         urgencia: nivelUrgencyRequest,
         status: nivelStatusRequested,
-        id_funcionario: funcionarioId, // ID do funcionário que já foi capturado
+        id_funcionario: funcionarioId,
     };
 
     try {
@@ -346,9 +363,8 @@ async function sendUserDataProcessos() {
 
         if (response.ok) {
             const processo = await response.json();
-            console.log(processo);
-            ocorrenciaId = processo.id_ocorrencia; // Captura o ID da ocorrência e armazena na variável global
-            insertFile(ocorrenciaId);  // Passa o ID da ocorrência para o upload do arquivo
+            ocorrenciaId = processo.id_ocorrencia;
+            // insertFile(ocorrenciaId);  // Passa o ID da ocorrência para o upload do arquivo
         } else {
             console.error('Erro ao registrar o processo');
         }
@@ -357,38 +373,49 @@ async function sendUserDataProcessos() {
     }
 }
 
-document.getElementById('fileInput').addEventListener('change', function() {
-    selectedFile = this.files[0];
-});
+// document.getElementById('fileInput').addEventListener('change', function() {
+//     selectedFile = this.files[0];
+// });
 
-// Adiciona o listener ao formulário
-document.getElementById('uploadForm').addEventListener('submit', function(event) {
-    event.preventDefault(); // Previne o envio padrão do formulário
-    const formData = new FormData();
+// // Adiciona o listener ao formulário
 
-    // Adicionando o arquivo e o ID da ocorrência ao FormData
-    formData.append('file', selectedFile);
-    formData.append('ocorrenciaId', 28); // Usando a variável global
+function sendFile() {
 
-    fetch('http://localhost:8080/processos/upload', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include', // Para enviar cookies, se necessário
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Erro ao fazer upload: ' + response.statusText);
-        }
-        return response.text(); // Lida com a resposta como texto
-    })
-    .then(data => {
-        console.log('Upload realizado com sucesso:', data); // Aqui você pode ver a resposta do servidor
-    })
-    .catch(error => {
-        console.error('Erro ao fazer upload:', error);
+    document.getElementById('uploadForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Previne o envio padrão do formulário
+        const formData = new FormData();
+        const fileInput = document.getElementById('fileInput');
+    
+        selectedFile = fileInput.files[0];
+    
+        // Adicionando o arquivo e o ID da ocorrência ao FormData
+        formData.append('file', selectedFile);
+        formData.append('ocorrenciaId', 26); // Usando a variável global
+    
+        console.log(selectedFile);
+    
+        fetch('http://localhost:8080/processos/upload', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include', // Para enviar cookies, se necessário
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao fazer upload: ' + response.statusText);
+            }
+            return response.text(); // Lida com a resposta como texto
+        })
+        .then(data => {
+            console.log('Upload realizado com sucesso:', data); // Aqui você pode ver a resposta do servidor
+        })
+        .catch(error => {
+            console.error('Erro ao fazer upload:', error);
+        });
     });
-    console.log('Ok');
-});
+}
+
+sendFile();
+
 
 handleMessageFirst(options);
 
