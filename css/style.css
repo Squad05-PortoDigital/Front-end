@@ -184,6 +184,12 @@
     padding: 8px;
 }
 
+.alert svg {
+    width: 20px;
+    height: 20px;
+  }
+  
+
 @media (min-width: 768px) and (min-width: 992px)  {
     .chatbot {
         position: fixed;

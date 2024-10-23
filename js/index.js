@@ -17,6 +17,11 @@ const buttonsNivelUrgency = document.querySelectorAll('#btnUrgency');
 const buttonGroupStatus = document.querySelector('#btns-groupStatus');
 const buttonNivelStatus = document.querySelectorAll('#btnStatus');
 
+const buttonGroupCertificationMedicate = document.getElementById('btns-groupCertificate');
+const buttonCertificationMedicate = document.querySelectorAll('#btnCertificate');
+
+const formUpload = document.getElementById('uploadForm');
+
 let userEmail = ""; // Variável global para armazenar o email
 let profissionSelected = ""; // Variável global para armazenar o cargo
 let detailsRequest = ""; // Armazena o detalhes da solicitação
@@ -25,6 +30,8 @@ let userDate = "";
 let nivelUrgencyRequest = "";
 let nivelStatusRequested = "";
 let funcionarioId = "";
+let awaitingMedicalCertificateChoice = false;
+let selectedFile;
 
 async function dataFuncionarios() {
     const response = await fetch('http://localhost:8080/funcionarios');
@@ -38,13 +45,13 @@ async function dataProcessos() {
     console.log(dataJson);
 }
 
-async function getFuncionarioPerId() {
-    const response = await fetch('http://localhost:8080/funcionarios/35');
-    const dataJson = await response.json();
-    console.log(dataJson);
-}
+// async function getUpload() {
+//     const response = await fetch('http://localhost:8080/processos/upload');
+//     const dataJson = await response.json();
+//     console.log(dataJson);
+// }
 
-// getFuncionarioPerId();
+// getUpload();
 dataFuncionarios();
 dataProcessos();
 
@@ -59,6 +66,7 @@ function handleRequest() {
         data_solicitacao: userDate,
         urgencia: nivelUrgencyRequest,
         status: nivelStatusRequested,
+        nome_arquivo: selectedFile,
     };
 
     console.log(`nome: ${data.name}`);
@@ -102,11 +110,68 @@ function handleGroupBtnsStatus() {
             });
 
             handleRequest();
-            cadastrarFuncionario();
-            sendUserDataProcessos();
+            chatBox.appendChild(createChatLi("Você possui atestado médico?", "incoming"));
+            buttonGroupCertificationMedicate.style.display = 'block';
+            chatBox.appendChild(buttonGroupCertificationMedicate);
+            handleBtnCertificateMedicial();
+
+            // if(awaitingMedicalCertificateChoice && (userMessage === '1' || userMessage === '2')) {
+            //     if (userMessage === '1') { // Sim - Anexar atestado
+            //         chatBox.appendChild(createChatLi("Por favor, anexe o atestado.", "incoming"));
+            //         fileInput.style.display = 'block';
+            //         chatBox.appendChild(fileInput);
+            //         awaitingMedicalCertificateChoice = false;
+            //         handleChangeInputFile();
+            //     } else {
+            //         chatBox.appendChild(createChatLi("Sua justificativa foi registrada com sucesso!", "incoming"));
+            //     }
+            // }
+            // cadastrarFuncionario();
+            // sendUserDataProcessos();
         })
     });
 }
+
+function handleBtnCertificateMedicial() {
+    buttonCertificationMedicate.forEach((button) => {
+        button.addEventListener('click', () => {
+            const buttonText = button.textContent;
+            chatBox.appendChild(createChatLi(buttonText, "outgoing"));
+
+            if (buttonText === 'Sim') {
+                chatBox.appendChild(createChatLi("Por favor, anexe o atestado.", "incoming"));
+                formUpload.style.display = 'block';
+                chatBox.appendChild(formUpload);
+
+                // fileInput.addEventListener('change', () => {
+                //     const file = fileInput.files[0];
+                //     selectedFile = file;
+
+                //     if (file) {
+                //         const validExtensions = ['image/png', 'image/jpeg', 'application/pdf'];
+                //         if (!validExtensions.includes(file.type)) {
+                //             chatBox.appendChild(createChatLi("Erro: O arquivo deve ser PNG, JPG ou PDF.", "incoming", true));
+                //             fileInput.value = "";
+                //         } else {
+                //             // O arquivo é válido, agora você pode enviar os dados
+                //             cadastrarFuncionario();
+                //             sendUserDataProcessos();
+                //         }
+                //     }
+                // });
+            } else {
+                chatBox.appendChild(createChatLi("Sua justificativa foi registrada com sucesso!", "incoming"));
+                cadastrarFuncionario();
+                sendUserDataProcessos();
+            }
+
+            buttonCertificationMedicate.forEach((btn) => {
+                btn.disabled = true;
+            });
+        });
+    });
+}
+
 
 handleGroupBtnsUrgency();
 handleGroupBtnsStatus();
@@ -218,17 +283,6 @@ function handleHours(options) {
     });
 }
 
-function handleChangeInputFile() {
-    fileInput.addEventListener('change', (event) => {
-        const file = event.target.files;
-        if(file.length > 0) {
-            chatBox.appendChild(createChatLi("Sua justificativa foi registrada com sucesso!", "incoming"));
-        } else {
-            return;
-        }
-    });
-}
-
 function handleBtnRequestedHour() {
     btnHourRequested.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -258,7 +312,6 @@ async function cadastrarFuncionario() {
     if (response.ok) {
         const funcionario = await response.json();
         funcionarioId = funcionario.id_funcionario;  // Armazena o ID retornado
-        console.log(`Funcionário cadastrado com sucesso. ID: ${funcionarioId}`);
         
         // Agora que o funcionário está cadastrado, pode prosseguir com o processo
         sendUserDataProcessos();
@@ -271,6 +324,7 @@ async function cadastrarFuncionario() {
     }
 }
 
+
 async function sendUserDataProcessos() {
     const userData = {
         descricao: detailsRequest,
@@ -278,21 +332,63 @@ async function sendUserDataProcessos() {
         data_solicitacao: userDate,
         urgencia: nivelUrgencyRequest,
         status: nivelStatusRequested,
-        id_funcionario: funcionarioId,
+        id_funcionario: funcionarioId, // ID do funcionário que já foi capturado
     };
 
     try {
         const response = await fetch('http://localhost:8080/processos', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-    })
-    } catch(e) {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userData),
+        });
+
+        if (response.ok) {
+            const processo = await response.json();
+            console.log(processo);
+            ocorrenciaId = processo.id_ocorrencia; // Captura o ID da ocorrência e armazena na variável global
+            insertFile(ocorrenciaId);  // Passa o ID da ocorrência para o upload do arquivo
+        } else {
+            console.error('Erro ao registrar o processo');
+        }
+    } catch (e) {
         console.log('Erro ao enviar os dados', e);
     }
 }
+
+document.getElementById('fileInput').addEventListener('change', function() {
+    selectedFile = this.files[0];
+});
+
+// Adiciona o listener ao formulário
+document.getElementById('uploadForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Previne o envio padrão do formulário
+    const formData = new FormData();
+
+    // Adicionando o arquivo e o ID da ocorrência ao FormData
+    formData.append('file', selectedFile);
+    formData.append('ocorrenciaId', 28); // Usando a variável global
+
+    fetch('http://localhost:8080/processos/upload', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include', // Para enviar cookies, se necessário
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Erro ao fazer upload: ' + response.statusText);
+        }
+        return response.text(); // Lida com a resposta como texto
+    })
+    .then(data => {
+        console.log('Upload realizado com sucesso:', data); // Aqui você pode ver a resposta do servidor
+    })
+    .catch(error => {
+        console.error('Erro ao fazer upload:', error);
+    });
+    console.log('Ok');
+});
 
 handleMessageFirst(options);
 
@@ -324,7 +420,6 @@ const resetForm = () => {
     hourRequested = "";
 };
 
-let awaitingMedicalCertificateChoice = false;
 let awaitRequestedHour = false;
 let hourRequested = "";
 
@@ -340,7 +435,7 @@ const handleChat = () => {
             chatBox.scrollTo(0, chatBox.scrollHeight);
 
             // Agora solicita os detalhes da solicitação
-            chatBox.appendChild(createChatLi("Por favor, descreva sua solicitação em detalhes.", "incoming"));
+            chatBox.appendChild(createChatLi("Por favor, informe o motivo da falta.", "incoming"));
             awaitingDetailsRequest = true; // Inicia a espera pelos detalhes
         } else {
             chatBox.appendChild(createChatLi("Por favor, insira um e-mail válido.", "incoming", true)); // Mensagem de erro
@@ -357,7 +452,7 @@ const handleChat = () => {
 
         // Agora que os detalhes foram capturados, finaliza o processo e chama handleRequest()
         awaitingDetailsRequest = false; // Finaliza a espera pelos detalhes
-        chatBox.appendChild(createChatLi("Obrigado. Por favor, insira a data da solicitação.", "incoming"));
+        chatBox.appendChild(createChatLi("Obrigado. Por favor, insira a data da falta.", "incoming"));
         formDate.style.display = 'block';
         chatBox.appendChild(formDate);
     }
@@ -473,59 +568,6 @@ const handleChat = () => {
         }
     }
 
-    // else if (userName !== "" && userCpf === "" && userMessage.length > 0) {
-    //     userMessage = formatCpf(userMessage);
-    //     userCpf = userMessage;
-    //     const firstName = userName.split(" ")[0];
-    //     const validCpf = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
-    //     chatInput.value = '';
-    //     chatBox.scrollTo(0, chatBox.scrollHeight);
-
-    //     if(validCpf.test(userMessage)) {
-    //         chatBox.appendChild(createChatLi(userMessage, "outgoing"));
-    //         chatBox.appendChild(createChatLi(`Obrigado.`, "incoming"));
-    //     } else {
-    //         chatBox.appendChild(createChatLi("Por favor, informe um cpf válido.", "incoming", true));
-    //     }
-
-    //     if (selectedOption === '1') {
-    //         chatBox.appendChild(createChatLi(`Agora, por favor, informe a data da falta.`, "incoming"));
-    //         formDate.style.display = 'block';
-    //         chatBox.appendChild(formDate);
-    //     } else if (selectedOption === '2' && userCpf !== "") {
-    //         if (hourRequested === "") {
-    //             // Exibe as opções de horas
-    //             chatBox.appendChild(createChatLi("Quantas horas extras você deseja solicitar?", "incoming"));
-    //             handleHours(optionsHours);
-    //         } else if (optionsHours[userMessage]) {
-    //             // Armazena a quantidade de horas extras solicitada
-    //             hourRequested = optionsHours[userMessage];
-    //             chatBox.appendChild(createChatLi(`Você solicitou ${hourRequested}.`, "incoming"));
-    //             chatInput.value = '';
-    //             chatBox.scrollTo(0, chatBox.scrollHeight);
-    //         } else if (userMessage === '5') {
-    //             // Caso o usuário escolha "Outra opção", pergunte o número específico de horas
-    //             chatBox.appendChild(createChatLi("Por favor, insira a quantidade de horas extras que deseja solicitar.", "incoming"));
-    //             formHour.style.display = 'block';
-    //             chatBox.appendChild(formHour);
-    //         }
-    //     }
-    // }
-
-    // Verificação para a data
-    // else if (selectedOption === '1' && userCpf !== "" && absenceDate === "" && userMessage.length > 0) {
-    //     const datePattern = /^\d{2}-\d{2}-\d{4}$/;
-    //     if (datePattern.test(userMessage)) {
-    //         absenceDate = userMessage; // Armazena a data
-    //         chatBox.appendChild(createChatLi(userMessage, "outgoing"));
-    //         // chatBox.appendChild(createChatLi(`Sua falta no dia ${absenceDate} foi registrada com sucesso. Por favor, agora nos informe o motivo da sua ausência em ${absenceDate}.`, "incoming"));
-    //     } else {
-    //         // chatBox.appendChild(createChatLi("Por favor, informe a data corretamente no formato DD-MM-YYYY.", "incoming"));
-    //     }
-    //     chatInput.value = '';
-    //     chatBox.scrollTo(0, chatBox.scrollHeight);
-    // }
-
     // Verificação para o motivo da falta
     else if (selectedOption === '1' && absenceDate !== "" && absenceReason === "" && userMessage.length > 0) {
         absenceReason = userMessage; // Armazena o motivo da falta
@@ -538,24 +580,6 @@ const handleChat = () => {
         chatBox.appendChild(createChatLi("Você possui um atestado médico?", "incoming"));
         handleMsgChoiceUser(choiceUser);
         awaitingMedicalCertificateChoice = true; // Aguarda a escolha sobre o atestado
-    }
-
-    // Verificação para a escolha do atestado médico
-    else if (awaitingMedicalCertificateChoice && (userMessage === '1' || userMessage === '2')) {
-        chatBox.appendChild(createChatLi(userMessage === '1' ? "Sim" : "Não", "outgoing"));
-        if (userMessage === '1') { // Sim - Anexar atestado
-            chatBox.appendChild(createChatLi("Por favor, anexe o atestado.", "incoming"));
-            fileInput.style.display = 'block';
-            chatBox.appendChild(fileInput);
-            handleChangeInputFile();
-        } else {
-            chatBox.appendChild(createChatLi("Sua justificativa foi registrada com sucesso!", "incoming"));
-        }
-
-        awaitingMedicalCertificateChoice = false; // Resetar o estado
-        chatInput.value = '';
-        chatBox.scrollTo(0, chatBox.scrollHeight);
-        // chatBox.appendChild(createChatLi("Precisa de mais alguma coisa?", "incoming"));
     }
 };
 
