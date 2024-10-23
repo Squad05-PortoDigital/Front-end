@@ -310,8 +310,8 @@ async function sendUserDataProcessos(funcionarioId) {
 
         if (response.ok) {
             const processo = await response.json();
-            ocorrenciaId = processo.id_ocorrencia;
-            // insertFile(ocorrenciaId);  // Passa o ID da ocorrência para o upload do arquivo
+            const processo_ocorrencia = processo.id_ocorrencia;
+            await sendFile(processo_ocorrencia);
         } else {
             console.error('Erro ao registrar o processo');
         }
@@ -320,7 +320,7 @@ async function sendUserDataProcessos(funcionarioId) {
     }
 }
 
-function sendFile() {
+async function sendFile(idOcorrencia) {
 
     document.getElementById('uploadForm').addEventListener('submit', function(event) {
         event.preventDefault(); // Previne o envio padrão do formulário
@@ -331,7 +331,7 @@ function sendFile() {
     
         // Adicionando o arquivo e o ID da ocorrência ao FormData
         formData.append('file', selectedFile);
-        formData.append('ocorrenciaId', 26); // Usando a variável global
+        formData.append('ocorrenciaId', idOcorrencia); // Usando a variável global
     
         console.log(selectedFile);
     
