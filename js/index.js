@@ -112,6 +112,125 @@ function handleGroupBtnsStatus() {
     });
 }
 
+document.getElementById('buttonGenerate').addEventListener('click', () => {
+    generatePdf();
+});
+
+// function generatePdf() {
+//     // Acessa a classe jsPDF a partir do objeto window.jspdf
+//     const { jsPDF } = window.jspdf;
+//     const doc = new jsPDF();
+
+//     const imageUrl = "https://t3.ftcdn.net/jpg/03/91/55/88/360_F_391558840_UCfhdQB5D02pPtos71K4HPl5pPPTlF76.jpg";
+
+//     // Posiciona a imagem no centro superior do PDF (x: centralizado, y: 10)
+//     const pageWidth = doc.internal.pageSize.width;
+//     const imageWidth = 50;
+//     const imageHeight = 50;
+//     const imageX = (pageWidth - imageWidth) / 2;  // Centraliza a imagem
+
+//     doc.addImage(imageUrl, "JPG", imageX, 5, imageWidth, imageHeight);
+
+//     // Desloca o conteúdo para ficar abaixo da imagem
+//     let yPos = 70;
+
+//     // Configurando o cabeçalho do comprovante
+//     doc.setFontSize(18);
+//     doc.text("Comprovante de Solicitação", 20, yPos);
+
+//     yPos += 20;
+//     doc.setFontSize(12);
+//     doc.text("Número da Solicitação:", 20, yPos);
+//     doc.text("123456", 70, yPos);
+
+//     yPos += 10;
+//     doc.text("Data:", 20, yPos);
+//     doc.text(new Date().toLocaleDateString(), 70, yPos);
+
+//     yPos += 20;
+//     doc.text("Solicitante:", 20, yPos);
+//     doc.text("João Silva", 70, yPos);
+
+//     yPos += 20;
+//     doc.text("Descrição:", 20, yPos);
+//     doc.text("Solicitação de acesso ao sistema de RH", 70, yPos);
+
+//     // Rodapé com nota
+//     yPos += 30;
+//     doc.setFontSize(10);
+//     doc.text("Este é um comprovante gerado automaticamente. Guarde-o para referência.", 20, yPos);
+
+//     // Linha separadora e assinatura
+//     yPos += 20;
+//     doc.line(20, yPos, 190, yPos); // Linha horizontal
+//     yPos += 10;
+//     doc.text("Assinatura do Solicitante", 20, yPos);
+
+//     // Salva o PDF
+//     doc.save('comprovante.pdf');
+// }
+
+function generatePdf() {
+    // Acessa a classe jsPDF a partir do objeto window.jspdf
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    const imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvhb90jzjlDd14xopEpRw-IYoTgIdk-s3vvQ&s";
+
+    const imageX = 10; // Posição horizontal da imagem
+    const imageY = 20; // Posição vertical da imagem
+    const imageWidth = 50;
+    const imageHeight = 50;
+
+    doc.addImage(imageUrl, "JPG", imageX, imageY, imageWidth, imageHeight);
+
+    const textX = imageX + imageWidth + 10; // Começa logo após a imagem
+    let textY = imageY; // Alinha com o topo da imagem
+
+    // Título do comprovante
+    doc.setFontSize(18);
+    doc.text("Comprovante de Solicitação", textX, textY);
+    
+    textY += 20; 
+
+    // Detalhes da solicitação
+    doc.setFontSize(12);
+    doc.text("Número da Solicitação:", textX, textY);
+    doc.text("123456", textX + 50, textY); // Valor do número da solicitação
+
+    textY += 10;
+    doc.text("Data:", textX, textY);
+    doc.text(new Date().toLocaleDateString(), textX + 50, textY);
+
+    textY += 10;
+    doc.text("Solicitante:", textX, textY);
+    doc.text("João Silva", textX + 50, textY);
+
+    textY += 10;
+    doc.text("Descrição:", textX, textY);
+    doc.text("Solicitação de acesso ao sistema de RH", textX + 50, textY);
+
+    // Nota de rodapé
+    textY += 30;
+    doc.setFontSize(10);
+    doc.text(
+        "Este é um comprovante gerado automaticamente. Guarde-o para referência.",
+        10,
+        textY
+    );
+
+    // Linha de assinatura
+    textY += 20;
+    doc.line(10, textY, 190, textY); // Linha horizontal
+    textY += 10;
+    doc.text("Assinatura do Solicitante", 10, textY);
+
+    // Salva o PDF
+    doc.save('comprovante.pdf');
+}
+
+
+
 function handleBtnCertificateMedicial() {
     buttonCertificationMedicate.forEach((button) => {
         button.addEventListener('click', () => {
@@ -130,6 +249,8 @@ function handleBtnCertificateMedicial() {
 
             cadastrarFuncionario();
             sendUserDataProcessos();
+            document.getElementById('buttonGenerate').style.display = 'block';
+            chatBox.appendChild(document.getElementById('buttonGenerate'));
 
             buttonCertificationMedicate.forEach((btn) => {
                 btn.disabled = true;
@@ -348,7 +469,6 @@ async function sendFile(idOcorrencia) {
             return response.text(); // Lida com a resposta como texto
         })
         .then(data => {
-            console.log('Upload realizado com sucesso:', data); // Aqui você pode ver a resposta do servidor
             document.getElementById('btn-send-file').disabled = true;
             chatBox.appendChild(createChatLi("Sua justificativa foi registrada com sucesso!", "incoming"));
         })
