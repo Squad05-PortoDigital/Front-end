@@ -114,61 +114,8 @@ function handleGroupBtnsStatus() {
 
 document.getElementById('buttonGenerate').addEventListener('click', () => {
     generatePdf();
+    document.getElementById('buttonGenerate').disabled = true;
 });
-
-// function generatePdf() {
-//     // Acessa a classe jsPDF a partir do objeto window.jspdf
-//     const { jsPDF } = window.jspdf;
-//     const doc = new jsPDF();
-
-//     const imageUrl = "https://t3.ftcdn.net/jpg/03/91/55/88/360_F_391558840_UCfhdQB5D02pPtos71K4HPl5pPPTlF76.jpg";
-
-//     // Posiciona a imagem no centro superior do PDF (x: centralizado, y: 10)
-//     const pageWidth = doc.internal.pageSize.width;
-//     const imageWidth = 50;
-//     const imageHeight = 50;
-//     const imageX = (pageWidth - imageWidth) / 2;  // Centraliza a imagem
-
-//     doc.addImage(imageUrl, "JPG", imageX, 5, imageWidth, imageHeight);
-
-//     // Desloca o conteúdo para ficar abaixo da imagem
-//     let yPos = 70;
-
-//     // Configurando o cabeçalho do comprovante
-//     doc.setFontSize(18);
-//     doc.text("Comprovante de Solicitação", 20, yPos);
-
-//     yPos += 20;
-//     doc.setFontSize(12);
-//     doc.text("Número da Solicitação:", 20, yPos);
-//     doc.text("123456", 70, yPos);
-
-//     yPos += 10;
-//     doc.text("Data:", 20, yPos);
-//     doc.text(new Date().toLocaleDateString(), 70, yPos);
-
-//     yPos += 20;
-//     doc.text("Solicitante:", 20, yPos);
-//     doc.text("João Silva", 70, yPos);
-
-//     yPos += 20;
-//     doc.text("Descrição:", 20, yPos);
-//     doc.text("Solicitação de acesso ao sistema de RH", 70, yPos);
-
-//     // Rodapé com nota
-//     yPos += 30;
-//     doc.setFontSize(10);
-//     doc.text("Este é um comprovante gerado automaticamente. Guarde-o para referência.", 20, yPos);
-
-//     // Linha separadora e assinatura
-//     yPos += 20;
-//     doc.line(20, yPos, 190, yPos); // Linha horizontal
-//     yPos += 10;
-//     doc.text("Assinatura do Solicitante", 20, yPos);
-
-//     // Salva o PDF
-//     doc.save('comprovante.pdf');
-// }
 
 function generatePdf() {
     // Acessa a classe jsPDF a partir do objeto window.jspdf
@@ -204,11 +151,11 @@ function generatePdf() {
 
     textY += 10;
     doc.text("Solicitante:", textX, textY);
-    doc.text("João Silva", textX + 50, textY);
+    doc.text(userName, textX + 50, textY);
 
     textY += 10;
     doc.text("Descrição:", textX, textY);
-    doc.text("Solicitação de acesso ao sistema de RH", textX + 50, textY);
+    doc.text(selectedInitialOption, textX + 50, textY);
 
     // Nota de rodapé
     textY += 30;
@@ -229,8 +176,6 @@ function generatePdf() {
     doc.save('comprovante.pdf');
 }
 
-
-
 function handleBtnCertificateMedicial() {
     buttonCertificationMedicate.forEach((button) => {
         button.addEventListener('click', () => {
@@ -242,7 +187,7 @@ function handleBtnCertificateMedicial() {
                 formUpload.style.display = 'block';
                 chatBox.appendChild(formUpload);
             } else {
-                chatBox.appendChild(createChatLi("Sua justificativa foi registrada com sucesso!", "incoming"));
+                chatBox.appendChild(createChatLi("Sua solicitação foi recebida. Acompanhe seu e-mail para mais detalhes.", "incoming"));
                 cadastrarFuncionario();
                 sendUserDataProcessos();
             }
