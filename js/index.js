@@ -112,38 +112,119 @@ function handleGroupBtnsStatus() {
     });
 }
 
-document.getElementById('buttonGenerate').addEventListener('click', () => {
-    generatePdf();
-    document.getElementById('buttonGenerate').disabled = true;
-});
+// document.getElementById('buttonGenerate').addEventListener('click', () => {
+//     generatePdf();
+//     document.getElementById('buttonGenerate').disabled = true;
+// });
 
-function generatePdf() {
-    // Acessa a classe jsPDF a partir do objeto window.jspdf
+async function cadastrarFuncionario() {
+
+    const removeFormatCpf = userCpf.replace(/\./g, '').replace(/-/g, '');
+
+    const userData = {
+        nome: userName,
+        cpf: removeFormatCpf,
+        email: userEmail,
+        cargo: profissionSelected,
+    };
+
+    try {
+        const response = await fetch('http://localhost:8080/funcionarios', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+    });
+
+    if (response.ok) {
+        const funcionario = await response.json();
+        const funcionario_id = funcionario.id_funcionario;
+        await sendUserDataProcessos(funcionario_id);
+    } else {
+        console.error('Erro ao cadastrar funcionário');
+    }
+
+    } catch(e) {
+        console.log('Erro ao enviar os dados', e);
+    }
+}
+
+async function sendUserDataProcessos(funcionarioId) {
+    const button = document.getElementById('buttonGenerate');
+    button.textContent = 'Aguarde...';
+    button.disabled = true;
+
+    const userData = {
+        descricao: detailsRequest,
+        tipo_processo: selectedInitialOption,
+        data_solicitacao: userDate,
+        urgencia: nivelUrgencyRequest,
+        status: nivelStatusRequested,
+        id_destinatario: funcionarioId,
+        id_funcionario: funcionarioId,
+    };
+
+    try {
+        const response = await fetch('http://localhost:8080/processos', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userData),
+        });
+
+        if (response.ok) {
+            const processo = await response.json();
+            const processo_ocorrencia = processo.id_ocorrencia;
+            await sendFile(processo_ocorrencia);
+            
+            button.textContent = 'Gerar Comprovante';
+            button.disabled = false;
+
+            button.addEventListener('click', async function() {
+                await generatePdf(processo_ocorrencia);
+                button.disabled = true;
+            });
+        } else {
+            console.error('Erro ao registrar o processo');
+            button.textContent = 'Erro! Tente novamente';
+        }
+    } catch (e) {
+        console.log('Erro ao enviar os dados', e);
+        button.textContent = 'Erro! Tente novamente';
+    }
+}
+
+async function generatePdf(id_ocorrencia) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
+    console.log(id_ocorrencia);
 
     const imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvhb90jzjlDd14xopEpRw-IYoTgIdk-s3vvQ&s";
-
-    const imageX = 10; // Posição horizontal da imagem
-    const imageY = 20; // Posição vertical da imagem
+    const imageX = 10;
+    const imageY = 20;
     const imageWidth = 50;
     const imageHeight = 50;
 
     doc.addImage(imageUrl, "JPG", imageX, imageY, imageWidth, imageHeight);
 
-    const textX = imageX + imageWidth + 10; // Começa logo após a imagem
-    let textY = imageY; // Alinha com o topo da imagem
+    const textX = imageX + imageWidth + 10;
+    let textY = imageY;
 
-    // Título do comprovante
     doc.setFontSize(18);
     doc.text("Comprovante de Solicitação", textX, textY);
-    
-    textY += 20; 
 
-    // Detalhes da solicitação
+    textY += 20;
+
+    // if(!id_ocorrencia) {
+    //     console.log('Erro');
+    // }
+
+    // Número da Solicitação
     doc.setFontSize(12);
     doc.text("Número da Solicitação:", textX, textY);
-    doc.text("123456", textX + 50, textY); // Valor do número da solicitação
+    doc.text(String(id_ocorrencia), textX + 50, textY);
 
     textY += 10;
     doc.text("Data:", textX, textY);
@@ -151,30 +232,60 @@ function generatePdf() {
 
     textY += 10;
     doc.text("Solicitante:", textX, textY);
-    doc.text(userName, textX + 50, textY);
+    doc.text(userName, textX + 50, textY); // Verifique se 'userName' está definido corretamente
 
     textY += 10;
     doc.text("Descrição:", textX, textY);
     doc.text(selectedInitialOption, textX + 50, textY);
 
-    // Nota de rodapé
     textY += 30;
     doc.setFontSize(10);
-    doc.text(
-        "Este é um comprovante gerado automaticamente. Guarde-o para referência.",
-        10,
-        textY
-    );
+    doc.text("Este é um comprovante gerado automaticamente. Guarde-o para referência.", 10, textY);
 
-    // Linha de assinatura
     textY += 20;
-    doc.line(10, textY, 190, textY); // Linha horizontal
+    doc.line(10, textY, 190, textY);
     textY += 10;
     doc.text("Assinatura do Solicitante", 10, textY);
 
-    // Salva o PDF
     doc.save('comprovante.pdf');
 }
+
+async function sendFile(idOcorrencia) {
+
+    document.getElementById('uploadForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Previne o envio padrão do formulário
+        const formData = new FormData();
+        const fileInput = document.getElementById('fileInput');
+    
+        selectedFile = fileInput.files[0];
+    
+        // Adicionando o arquivo e o ID da ocorrência ao FormData
+        formData.append('file', selectedFile);
+        formData.append('ocorrenciaId', idOcorrencia);
+    
+        console.log(selectedFile);
+    
+        fetch('http://localhost:8080/processos/upload', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include', // Para enviar cookies, se necessário
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao fazer upload: ' + response.statusText);
+            }
+            return response.text(); // Lida com a resposta como texto
+        })
+        .then(data => {
+            document.getElementById('btn-send-file').disabled = true;
+            chatBox.appendChild(createChatLi("Sua justificativa foi registrada com sucesso!", "incoming"));
+        })
+        .catch(error => {
+            console.error('Erro ao fazer upload:', error);
+        });
+    });
+}
+
 
 function handleBtnCertificateMedicial() {
     buttonCertificationMedicate.forEach((button) => {
@@ -321,109 +432,6 @@ function handleBtnRequestedHour() {
     });
 }
 
-async function cadastrarFuncionario() {
-
-    const removeFormatCpf = userCpf.replace(/\./g, '').replace(/-/g, '');
-
-    const userData = {
-        nome: userName,
-        cpf: removeFormatCpf,
-        email: userEmail,
-        cargo: profissionSelected,
-    };
-
-    try {
-        const response = await fetch('http://localhost:8080/funcionarios', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-    });
-
-    if (response.ok) {
-        const funcionario = await response.json();
-        const funcionario_id = funcionario.id_funcionario;
-        await sendUserDataProcessos(funcionario_id);
-    } else {
-        console.error('Erro ao cadastrar funcionário');
-    }
-
-    } catch(e) {
-        console.log('Erro ao enviar os dados', e);
-    }
-}
-
-
-async function sendUserDataProcessos(funcionarioId) {
-    const userData = {
-        descricao: detailsRequest,
-        tipo_processo: selectedInitialOption,
-        data_solicitacao: userDate,
-        urgencia: nivelUrgencyRequest,
-        status: nivelStatusRequested,
-        id_destinatario: funcionarioId,
-        id_funcionario: funcionarioId,
-    };
-
-    try {
-        const response = await fetch('http://localhost:8080/processos', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(userData),
-        });
-
-        if (response.ok) {
-            const processo = await response.json();
-            const processo_ocorrencia = processo.id_ocorrencia;
-            await sendFile(processo_ocorrencia);
-        } else {
-            console.error('Erro ao registrar o processo');
-        }
-    } catch (e) {
-        console.log('Erro ao enviar os dados', e);
-    }
-}
-
-async function sendFile(idOcorrencia) {
-
-    document.getElementById('uploadForm').addEventListener('submit', function(event) {
-        event.preventDefault(); // Previne o envio padrão do formulário
-        const formData = new FormData();
-        const fileInput = document.getElementById('fileInput');
-    
-        selectedFile = fileInput.files[0];
-    
-        // Adicionando o arquivo e o ID da ocorrência ao FormData
-        formData.append('file', selectedFile);
-        formData.append('ocorrenciaId', idOcorrencia);
-    
-        console.log(selectedFile);
-    
-        fetch('http://localhost:8080/processos/upload', {
-            method: 'POST',
-            body: formData,
-            credentials: 'include', // Para enviar cookies, se necessário
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erro ao fazer upload: ' + response.statusText);
-            }
-            return response.text(); // Lida com a resposta como texto
-        })
-        .then(data => {
-            document.getElementById('btn-send-file').disabled = true;
-            chatBox.appendChild(createChatLi("Sua justificativa foi registrada com sucesso!", "incoming"));
-        })
-        .catch(error => {
-            console.error('Erro ao fazer upload:', error);
-        });
-    });
-}
-
-sendFile();
 handleMessageFirst(options);
 
 function formatCpf(cpf) {
