@@ -21,7 +21,6 @@ const buttonGroupCertificationMedicate = document.getElementById('btns-groupCert
 const buttonCertificationMedicate = document.querySelectorAll('#btnCertificate');
 
 const formUpload = document.getElementById('uploadForm');
-const alert_feedback = document.getElementById('alert-feedback');
 
 let userEmail = ""; // Variável global para armazenar o email
 let profissionSelected = ""; // Variável global para armazenar o cargo
@@ -33,6 +32,34 @@ let nivelStatusRequested = "";
 let funcionarioId = "";
 let awaitingMedicalCertificateChoice = false;
 let selectedFile;
+
+function preventButton() {
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('uploadForm');
+        const submitButton = document.getElementById('btn-send-file');
+        
+        // Desativa o botão inicialmente
+        submitButton.disabled = true;
+        
+        // Monitora mudanças no campo de arquivo
+        const fileInput = document.getElementById('fileInput');
+        fileInput.addEventListener('change', function() {
+            submitButton.disabled = !fileInput.files.length;
+        });
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault(); // Previne o envio do formulário
+            console.log("Envio do formulário prevenido!");
+            chatBox.appendChild(createChatLi("Sua solicitação foi recebida. Acompanhe seu e-mail para mais detalhes.", "incoming"));
+            document.getElementById('buttonGenerate').style.display = 'block';
+            chatBox.appendChild(document.getElementById('buttonGenerate'));
+            // Código adicional
+        });
+    });
+}
+
+preventButton();
+
 
 async function dataFuncionarios() {
     const response = await fetch('http://localhost:8080/funcionarios');
@@ -48,31 +75,6 @@ async function dataProcessos() {
 
 dataFuncionarios();
 dataProcessos();
-
-function handleRequest() {
-    const data = {
-        name: userName,
-        cpf: userCpf,
-        cargo: profissionSelected,
-        email: userEmail,
-        request: detailsRequest,
-        tipo_processo: selectedInitialOption,
-        data_solicitacao: userDate,
-        urgencia: nivelUrgencyRequest,
-        status: nivelStatusRequested,
-        nome_arquivo: selectedFile,
-    };
-
-    console.log(`nome: ${data.name}`);
-    console.log(`cpf: ${data.cpf}`);
-    console.log(`cargo: ${profissionSelected}`);
-    console.log(`email: ${data.email}`);
-    console.log(`detalhes da solicitação: ${data.request}`);
-    console.log(`Tipo de processo: ${selectedInitialOption}`);
-    console.log(`Data de processo: ${userDate}`);
-    console.log(`Urgência: ${nivelUrgencyRequest}`);
-    console.log(`Nível: ${nivelStatusRequested}`);
-}
 
 function handleGroupBtnsUrgency() {
     buttonsNivelUrgency.forEach((button, index) => {
@@ -103,7 +105,7 @@ function handleGroupBtnsStatus() {
                 btn.disabled = true;
             });
 
-            handleRequest();
+            
             chatBox.appendChild(createChatLi("Você possui atestado médico?", "incoming"));
             buttonGroupCertificationMedicate.style.display = 'block';
             chatBox.appendChild(buttonGroupCertificationMedicate);
@@ -111,11 +113,6 @@ function handleGroupBtnsStatus() {
         })
     });
 }
-
-// document.getElementById('buttonGenerate').addEventListener('click', () => {
-//     generatePdf();
-//     document.getElementById('buttonGenerate').disabled = true;
-// });
 
 async function cadastrarFuncionario() {
 
@@ -217,10 +214,6 @@ async function generatePdf(id_ocorrencia) {
 
     textY += 20;
 
-    // if(!id_ocorrencia) {
-    //     console.log('Erro');
-    // }
-
     // Número da Solicitação
     doc.setFontSize(12);
     doc.text("Número da Solicitação:", textX, textY);
@@ -301,12 +294,12 @@ function handleBtnCertificateMedicial() {
                 chatBox.appendChild(createChatLi("Sua solicitação foi recebida. Acompanhe seu e-mail para mais detalhes.", "incoming"));
                 cadastrarFuncionario();
                 sendUserDataProcessos();
+                document.getElementById('buttonGenerate').style.display = 'block';
+                chatBox.appendChild(document.getElementById('buttonGenerate'));
             }
 
             cadastrarFuncionario();
             sendUserDataProcessos();
-            document.getElementById('buttonGenerate').style.display = 'block';
-            chatBox.appendChild(document.getElementById('buttonGenerate'));
 
             buttonCertificationMedicate.forEach((btn) => {
                 btn.disabled = true;
