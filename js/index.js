@@ -153,14 +153,15 @@ async function sendUserDataProcessos(funcionarioId) {
     button.disabled = true;
 
     const userData = {
-        descricao: detailsRequest,
-        tipo_processo: selectedInitialOption,
-        data_solicitacao: userDate,
-        urgencia: nivelUrgencyRequest,
-        status: nivelStatusRequested,
-        id_destinatario: funcionarioId,
-        id_funcionario: funcionarioId,
+        descricao: detailsRequest || '',
+        tipo_processo: selectedInitialOption || '',
+        data_solicitacao: userDate || '',
+        urgencia: nivelUrgencyRequest || '',
+        status: nivelStatusRequested || '',
+        id_destinatario: funcionarioId || null,
+        id_funcionario: funcionarioId || null,
     };
+    
 
     try {
         const response = await fetch('http://localhost:8080/processos', {
@@ -196,7 +197,6 @@ async function sendUserDataProcessos(funcionarioId) {
 async function generatePdf(id_ocorrencia) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    console.log(id_ocorrencia);
 
     const imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvhb90jzjlDd14xopEpRw-IYoTgIdk-s3vvQ&s";
     const imageX = 10;
@@ -255,8 +255,6 @@ async function sendFile(idOcorrencia) {
         // Adicionando o arquivo e o ID da ocorrência ao FormData
         formData.append('file', selectedFile);
         formData.append('ocorrenciaId', idOcorrencia);
-    
-        console.log(selectedFile);
     
         fetch('http://localhost:8080/processos/upload', {
             method: 'POST',
@@ -357,6 +355,7 @@ function handleBtnProfission() {
 handleBtnHour();
 handleBtnDate();
 handleBtnProfission();
+
 let awaitingEmail = false;
 let awaitingDetailsRequest = false;
 
@@ -366,11 +365,6 @@ const options = {
     3: "Solicitação de férias",
     4: "Solicitação de desligamento",
     5: "Solicitação de benefícios",
-};
-
-const choiceUser = {
-    1: "Sim",
-    2: 'Não'
 };
 
 const optionsHours = {
@@ -397,14 +391,6 @@ const createChatLi = (message, className, isError = false) => {
     return chatLi;
 };
 
-
-function handleMessageFirst(options) {
-    const values = Object.keys(options);
-    values.forEach(key => {
-        chatBox.appendChild(createChatLi(`${key}. ${options[key]}`, "incoming"));   
-    });
-}
-
 function handleMsgChoiceUser(options) {
     const values = Object.keys(options);
     values.forEach(key => {
@@ -425,7 +411,6 @@ function handleBtnRequestedHour() {
     });
 }
 
-handleMessageFirst(options);
 
 function formatCpf(cpf) {
     cpf = cpf.replace(/\D/g, ''); // Remove todos os caracteres não numéricos
@@ -454,168 +439,230 @@ const resetForm = () => {
     hourRequested = "";
 };
 
+// vaiaveis de controle
+let awaitingNameUser = false;
+let awaitingCpfUser = false;
+let awaitingEmailUser = false;
+
 let awaitRequestedHour = false;
 let hourRequested = "";
+
+let awaitingInput = false;
 
 const handleChat = () => {
     let userMessage = chatInput.value.trim();
 
-    if (awaitingEmail) {
-        if (isValidEmail(userMessage)) {
-            chatBox.appendChild(createChatLi(userMessage, "outgoing")); // Mostra o e-mail do usuário
-            awaitingEmail = false; // Finaliza a espera pelo e-mail
-            userEmail = userMessage; // Armazena o e-mail
-            chatInput.value = ''; // Limpa o campo de texto
-            chatBox.scrollTo(0, chatBox.scrollHeight);
+    // if (awaitingEmail) {
+    //     if (isValidEmail(userMessage)) {
+    //         chatBox.appendChild(createChatLi(userMessage, "outgoing")); // Mostra o e-mail do usuário
+    //         awaitingEmail = false; // Finaliza a espera pelo e-mail
+    //         userEmail = userMessage; // Armazena o e-mail
+    //         chatInput.value = ''; // Limpa o campo de texto
+    //         chatBox.scrollTo(0, chatBox.scrollHeight);
 
-            // Agora solicita os detalhes da solicitação
-            chatBox.appendChild(createChatLi("Por favor, informe o motivo da falta.", "incoming"));
-            awaitingDetailsRequest = true; // Inicia a espera pelos detalhes
-        } else {
-            chatBox.appendChild(createChatLi("Por favor, insira um e-mail válido.", "incoming", true)); // Mensagem de erro
-            chatInput.value = ''; // Limpa o campo de texto para tentar de novo
-            chatBox.scrollTo(0, chatBox.scrollHeight);
-        }
-    }
+    //         // Agora solicita os detalhes da solicitação
+    //         chatBox.appendChild(createChatLi("Por favor, informe o motivo da falta.", "incoming"));
+    //         awaitingDetailsRequest = true; // Inicia a espera pelos detalhes
+    //     } else {
+    //         chatBox.appendChild(createChatLi("Por favor, insira um e-mail válido.", "incoming", true)); // Mensagem de erro
+    //         chatInput.value = ''; // Limpa o campo de texto para tentar de novo
+    //         chatBox.scrollTo(0, chatBox.scrollHeight);
+    //     }
+    // }
 
-    else if (awaitingDetailsRequest) {
-        detailsRequest = userMessage; // Captura os detalhes da solicitação
-        chatBox.appendChild(createChatLi(detailsRequest, "outgoing")); // Exibe a solicitação
-        chatInput.value = ''; // Limpa o campo de texto
-        chatBox.scrollTo(0, chatBox.scrollHeight);
+    // else if (awaitingDetailsRequest) {
+    //     detailsRequest = userMessage; // Captura os detalhes da solicitação
+    //     chatBox.appendChild(createChatLi(detailsRequest, "outgoing")); // Exibe a solicitação
+    //     chatInput.value = ''; // Limpa o campo de texto
+    //     chatBox.scrollTo(0, chatBox.scrollHeight);
 
-        // Agora que os detalhes foram capturados, finaliza o processo e chama handleRequest()
-        awaitingDetailsRequest = false; // Finaliza a espera pelos detalhes
-        chatBox.appendChild(createChatLi("Obrigado. Por favor, insira a data da falta.", "incoming"));
-        formDate.style.display = 'block';
-        chatBox.appendChild(formDate);
-    }
+    //     // Agora que os detalhes foram capturados, finaliza o processo e chama handleRequest()
+    //     awaitingDetailsRequest = false; // Finaliza a espera pelos detalhes
+    //     chatBox.appendChild(createChatLi("Obrigado. Por favor, insira a data da falta.", "incoming"));
+    //     formDate.style.display = 'block';
+    //     chatBox.appendChild(formDate);
+    // }
 
     // Verificação da seleção de opção principal
-    if (!isNaN(parseInt(userMessage, 10)) && options[userMessage] && !awaitingMedicalCertificateChoice && !awaitRequestedHour) {
+    if (!isNaN(parseInt(userMessage, 10)) && options[userMessage] && !awaitingInput) {
+        // Tratamento para uma opção válida somente quando não está aguardando um dado específico
         chatBox.appendChild(createChatLi(userMessage, "outgoing"));
         chatInput.value = '';
-        selectedInitialOption = options[userMessage]; 
-        chatBox.scrollTo(0, chatBox.scrollHeight);
-
         selectedOption = userMessage;
-
+    
         switch (selectedOption) {
             case '1':
+                awaitingNameUser = true; // Ativa a flag para esperar o nome
+                awaitingInput = true; // Indica que o chatbot está aguardando uma entrada específica
                 chatBox.appendChild(createChatLi("Para justificar sua falta, por favor, informe seu nome completo.", "incoming"));
                 break;
             case '2':
+                awaitingNameUser = true;
+                awaitingInput = true;
                 chatBox.appendChild(createChatLi("Para solicitar horas extras, informe seu nome completo.", "incoming"));
-                awaitRequestedHour = true;
                 break;
-            case '3':
-                console.log("Ação específica para a chave 3.");
-                break;
-            default:
-                console.log("Ação padrão para chaves não específicas.");
+            // Continue para as demais opções
         }
-    
-    }
-
-    else if (awaitRequestedHour) {
-        if (userName === "" && userMessage.length > 0) {
-            chatBox.appendChild(createChatLi(userMessage, "outgoing"));
-            userName = userMessage;
-            const firstName = userName.split(" ")[0];
-            chatBox.appendChild(createChatLi(`Obrigado, ${firstName}! Para prosseguirmos com sua solicitação, precisamos que você informe seu CPF.`, "incoming"));
-            chatInput.value = '';
-            chatBox.scrollTo(0, chatBox.scrollHeight);
-        }
-        
-        else if (userName !== "" && userCpf === "" && userMessage.length > 0) {
-            userRegistration = userMessage;
-            const firstName = userName.split(" ")[0];
-            chatBox.appendChild(createChatLi(userMessage, "outgoing"));
-            chatBox.appendChild(createChatLi(`Obrigado, ${firstName}. Quantas horas extras você deseja solicitar?`, "incoming"));
-            handleHours(optionsHours);
-            chatInput.value = '';
-            chatBox.scrollTo(0, chatBox.scrollHeight);
-        }
-        
-        
-        else if (userCpf !== "" && hourRequested === "" && userMessage === '5') {
-            hourRequested = optionsHours[userMessage];
-            chatInput.value = "";
-            chatBox.appendChild(createChatLi(`${hourRequested}`, "outgoing")); 
-            chatBox.appendChild(createChatLi("Por favor, insira a quantidade de horas extras que deseja solicitar.", "incoming"));
-            formHour.style.display = 'block';
-            chatBox.appendChild(formHour);
-        }
-        
-        else if (userCpf !== "" && hourRequested === "" && optionsHours[userMessage]) {
-            hourRequested = optionsHours[userMessage];
-            chatBox.appendChild(createChatLi(`${hourRequested}`, "outgoing"));
-            chatInput.value = '';
-            chatBox.scrollTo(0, chatBox.scrollHeight);
-            awaitRequestedHour = false;
-            resetForm();
-        }
-    }
-
-    // Verificação do nome
-    else if (userName === "" && userMessage.length > 0) {
-        chatBox.appendChild(createChatLi(userMessage, "outgoing"));
-        userName = userMessage;
+    } else if (awaitingNameUser) {
+        const userName = userMessage.trim();
         const firstName = userName.split(" ")[0];
-        chatBox.appendChild(createChatLi(`Obrigado, ${firstName}! Agora, por favor, informe seu CPF.`, "incoming"));
-        chatInput.value = '';
-        chatBox.scrollTo(0, chatBox.scrollHeight);
-    }
-
-    // Verificação do cpf
-    else if (userName !== "" && userCpf === "" && userMessage.length > 0) {
-        userMessage = formatCpf(userMessage);
-        const validCpf = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
-        chatInput.value = '';
-        chatBox.scrollTo(0, chatBox.scrollHeight);
-    
-        if (validCpf.test(userMessage)) {
-            userCpf = userMessage; // Salva o CPF apenas se for válido
-            chatBox.appendChild(createChatLi(userMessage, "outgoing"));
-            chatBox.appendChild(createChatLi(`Obrigado. Por favor, informe o seu cargo.`, "incoming"));
-            formProfission.style.display = 'block';
-            chatBox.appendChild(formProfission);
+        
+        if (userName === "") {
+            chatBox.appendChild(createChatLi("O nome não pode estar vazio. Por favor, informe seu nome completo.", "incoming", true));
         } else {
-            // Se o CPF não for válido, pedimos ao usuário para tentar novamente
-            chatBox.appendChild(createChatLi("Por favor, informe um CPF válido.", "incoming", true));
-    
-            // Aqui, você deve ter um evento que atualiza userMessage a partir da entrada do usuário
-            chatInput.addEventListener('keypress', function (event) {
-                if (event.key === 'Enter') {
-                    userMessage = formatCpf(chatInput.value);
-                    chatInput.value = ''; // Limpa a entrada
-    
-                    // Verifique novamente a validade do CPF
-                    if (validCpf.test(userMessage)) {
-                        userCpf = userMessage; // Salva o CPF
-                    } else {
-                        chatBox.appendChild(createChatLi("Por favor, informe um CPF válido.", "incoming", true));
-                    }
-                    chatBox.scrollTo(0, chatBox.scrollHeight);
-                }
-            });
+            chatBox.appendChild(createChatLi(userName, "outgoing"));
+            chatBox.appendChild(createChatLi(`Olá, ${firstName}! Por favor, informe seu CPF.`, "incoming"));
+            chatInput.value = '';
+
+            awaitingNameUser = false; // Reseta a flag de nome
+            awaitingCpfUser = true; // Ativa a flag de CPF
+            awaitingInput = true; // Mantém a flag ativa até que o CPF seja preenchido
         }
-    }
+    } else if (awaitingCpfUser) {
+        const cpfFormat = /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/;
+        const userCpf = userMessage;
 
-    // Verificação para o motivo da falta
-    else if (selectedOption === '1' && absenceDate !== "" && absenceReason === "" && userMessage.length > 0) {
-        absenceReason = userMessage; // Armazena o motivo da falta
+        if(userCpf === '') {
+            chatBox.appendChild(createChatLi("O CPF não pode ficar em branco. Por favor, informe seu CPF para continuarmos", "incoming", true));
+        } else {
+            if (cpfFormat.test(userMessage)) {
+                chatBox.appendChild(createChatLi(userCpf, "outgoing"));
+                chatBox.appendChild(createChatLi(`Obrigado! Agora, por favor, informe seu e-mail.`, "incoming"));
+                chatInput.value = '';
+                awaitingCpfUser = false; // Reseta a flag de CPF
+                awaitingEmailUser = true; // Ativa a flag de e-mail
+            } else {
+                chatBox.appendChild(createChatLi(userCpf, "outgoing"));
+                chatBox.appendChild(createChatLi("CPF inválido. Por favor, insira um CPF válido.", "incoming", true));
+                chatInput.value = '';
+            }
+        }
+
+    } else if (awaitingEmailUser) {
+        const emailFormat = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        const userEmail = userMessage;
+
+        if (userMessage.trim() === '') {
+            chatBox.appendChild(createChatLi("O e-mail não pode estar vazio. Por favor, informe seu e-mail", "incoming", true));
+        } else {
+            if (emailFormat.test(userMessage)) {
+                chatBox.appendChild(createChatLi(`E-mail registrado: ${userEmail}. Obrigado!`, "outgoing"));
+                awaitingEmailUser = false; // Reseta a flag de e-mail
+                awaitingInput = false; // Libera a entrada de novas opções de menu
+            } else {
+                chatBox.appendChild(createChatLi(userEmail, "outgoing"));
+                chatBox.appendChild(createChatLi("E-mail inválido. Por favor, insira um e-mail válido.", "incoming", true));
+                chatInput.value = '';
+            }
+        }
+        
+
+    } else {
         chatBox.appendChild(createChatLi(userMessage, "outgoing"));
-
+        chatBox.appendChild(createChatLi("Opção inválida. Por favor, escolha uma opção válida entre 1 e 5.", "incoming", true));
         chatInput.value = '';
-        chatBox.scrollTo(0, chatBox.scrollHeight);
-
-        // Pergunta se o usuário possui atestado
-        chatBox.appendChild(createChatLi("Você possui um atestado médico?", "incoming"));
-        handleMsgChoiceUser(choiceUser);
-        awaitingMedicalCertificateChoice = true; // Aguarda a escolha sobre o atestado
+        handleMessageInit(options);
     }
+    
+    
+
+    // else if (awaitRequestedHour) {
+    //     if (userName === "" && userMessage.length > 0) {
+    //         chatBox.appendChild(createChatLi(userMessage, "outgoing"));
+    //         userName = userMessage;
+    //         const firstName = userName.split(" ")[0];
+    //         chatBox.appendChild(createChatLi(`Obrigado, ${firstName}! Para prosseguirmos com sua solicitação, precisamos que você informe seu CPF.`, "incoming"));
+    //         chatInput.value = '';
+    //         chatBox.scrollTo(0, chatBox.scrollHeight);
+    //     }
+        
+    //     else if (userName !== "" && userCpf === "" && userMessage.length > 0) {
+    //         userRegistration = userMessage;
+    //         const firstName = userName.split(" ")[0];
+    //         chatBox.appendChild(createChatLi(userMessage, "outgoing"));
+    //         chatBox.appendChild(createChatLi(`Obrigado, ${firstName}. Quantas horas extras você deseja solicitar?`, "incoming"));
+    //         handleHours(optionsHours);
+    //         chatInput.value = '';
+    //         chatBox.scrollTo(0, chatBox.scrollHeight);
+    //     }
+        
+        
+    //     else if (userCpf !== "" && hourRequested === "" && userMessage === '5') {
+    //         hourRequested = optionsHours[userMessage];
+    //         chatInput.value = "";
+    //         chatBox.appendChild(createChatLi(`${hourRequested}`, "outgoing")); 
+    //         chatBox.appendChild(createChatLi("Por favor, insira a quantidade de horas extras que deseja solicitar.", "incoming"));
+    //         formHour.style.display = 'block';
+    //         chatBox.appendChild(formHour);
+    //     }
+        
+    //     else if (userCpf !== "" && hourRequested === "" && optionsHours[userMessage]) {
+    //         hourRequested = optionsHours[userMessage];
+    //         chatBox.appendChild(createChatLi(`${hourRequested}`, "outgoing"));
+    //         chatInput.value = '';
+    //         chatBox.scrollTo(0, chatBox.scrollHeight);
+    //         awaitRequestedHour = false;
+    //         resetForm();
+    //     }
+    // }
+
+    // // Verificação do nome
+    // else if (userName === "" && userMessage.length > 0) {
+    //     chatBox.appendChild(createChatLi(userMessage, "outgoing"));
+    //     userName = userMessage;
+    //     const firstName = userName.split(" ")[0];
+    //     chatBox.appendChild(createChatLi(`Obrigado, ${firstName}! Agora, por favor, informe seu CPF.`, "incoming"));
+    //     chatInput.value = '';
+    //     chatBox.scrollTo(0, chatBox.scrollHeight);
+    // }
+
+    // // Verificação do cpf
+    // else if (userName !== "" && userCpf === "" && userMessage.length > 0) {
+    //     userMessage = formatCpf(userMessage);
+    //     const validCpf = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
+    //     chatInput.value = '';
+    //     chatBox.scrollTo(0, chatBox.scrollHeight);
+    
+    //     if (validCpf.test(userMessage)) {
+    //         userCpf = userMessage; // Salva o CPF apenas se for válido
+    //         chatBox.appendChild(createChatLi(userMessage, "outgoing"));
+    //         chatBox.appendChild(createChatLi(`Obrigado. Por favor, informe o seu cargo.`, "incoming"));
+    //         formProfission.style.display = 'block';
+    //         chatBox.appendChild(formProfission);
+    //     } else {
+    //         // Se o CPF não for válido, pedimos ao usuário para tentar novamente
+    //         chatBox.appendChild(createChatLi("Por favor, informe um CPF válido.", "incoming", true));
+    
+    //         // Aqui, você deve ter um evento que atualiza userMessage a partir da entrada do usuário
+    //         chatInput.addEventListener('keypress', function (event) {
+    //             if (event.key === 'Enter') {
+    //                 userMessage = formatCpf(chatInput.value);
+    //                 chatInput.value = ''; // Limpa a entrada
+    
+    //                 // Verifique novamente a validade do CPF
+    //                 if (validCpf.test(userMessage)) {
+    //                     userCpf = userMessage; // Salva o CPF
+    //                 } else {
+    //                     chatBox.appendChild(createChatLi("Por favor, informe um CPF válido.", "incoming", true));
+    //                 }
+    //                 chatBox.scrollTo(0, chatBox.scrollHeight);
+    //             }
+    //         });
+    //     }
+    // }
 };
+
+
+function handleMessageInit(options) {
+    const values = Object.keys(options);
+    values.forEach(key => {
+        chatBox.appendChild(createChatLi(`${key}. ${options[key]}`, "incoming"));   
+    });
+}
+
+setTimeout(() => {
+    handleMessageInit(options);
+  }, 2000);
 
 const handleEnter = () => {
     document.addEventListener('keydown', event => {
