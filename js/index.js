@@ -37,14 +37,32 @@ function preventButton() {
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('uploadForm');
         const submitButton = document.getElementById('btn-send-file');
-        
-        // Desativa o botão inicialmente
-        submitButton.disabled = true;
-        
-        // Monitora mudanças no campo de arquivo
         const fileInput = document.getElementById('fileInput');
+        const errorMessage = document.createElement('p');
+        
+        
+        errorMessage.id = 'fileError';
+        errorMessage.style.color = 'red';
+        errorMessage.style.display = 'none';
+        fileInput.parentElement.appendChild(errorMessage);
+
+      
+        submitButton.disabled = true;
+
+        
         fileInput.addEventListener('change', function() {
-            submitButton.disabled = !fileInput.files.length;
+            const allowedExtensions = ['png', 'pdf', 'jpg'];
+            const file = fileInput.files[0];
+            const fileExtension = file ? file.name.split('.').pop().toLowerCase() : '';
+            
+            if (file && !allowedExtensions.includes(fileExtension)) {
+                errorMessage.textContent = 'Formato de arquivo inválido. Apenas PNG, PDF ou JPG são permitidos.';
+                errorMessage.style.display = 'block';
+                submitButton.disabled = true;
+            } else {
+                errorMessage.style.display = 'none';
+                submitButton.disabled = !fileInput.files.length;
+            }
         });
 
         form.addEventListener('submit', (e) => {
@@ -56,6 +74,7 @@ function preventButton() {
         });
     });
 }
+
 
 preventButton();
 
