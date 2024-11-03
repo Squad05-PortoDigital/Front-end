@@ -334,14 +334,30 @@ handleGroupBtnsUrgency();
 handleGroupBtnsStatus();
 
 function handleBtnHour() {
+    const hourInput = document.querySelector('#hour');
+    const btnHourRequested = document.querySelector('#btn-send-hourRequested');
+    
+    btnHourRequested.disabled = true;
+    
+    hourInput.addEventListener('input', () => {
+        btnHourRequested.disabled = hourInput.value.trim() === '';
+    });
+
     btnHourRequested.addEventListener('click', (e) => {
         e.preventDefault();
-        const hourRequested = document.querySelector('#hour').value.trim();
+        const hourRequested = hourInput.value.trim();
         const [hour, minute] = hourRequested.split(":");
-        chatBox.appendChild(createChatLi(`${hour} hora e ${minute} minuto.`, "outgoing"));
+        
+        chatBox.appendChild(createChatLi(`${hour} hora(s) e ${minute} minuto(s).`, "outgoing"));
+        
         btnHourRequested.disabled = true;
+
+        chatBox.appendChild(createChatLi("Obrigado. Qual é o status da solicitação?", "incoming"));
+        buttonGroupStatus.style.display = 'block';
+        chatBox.appendChild(buttonGroupStatus);
     });
 }
+
 
 function handleBtnDate() {
     const dateInput = document.querySelector('#date');
@@ -378,7 +394,12 @@ function handleBtnProfission() {
         profissionSelected = select.options[select.selectedIndex].text;
 
         chatBox.appendChild(createChatLi(profissionSelected, "outgoing"));
-        chatBox.appendChild(createChatLi("Obrigado. Por favor, informe o motivo da falta.", "incoming"));
+        
+        if(selectedOption === '1') {
+             chatBox.appendChild(createChatLi("Obrigado. Por favor, informe o motivo da falta.", "incoming"));
+        }else if(selectedOption === '2') {
+            chatBox.appendChild(createChatLi("Obrigado. Por favor, descreva o motivo da sua solicitação.", "incoming"));
+        }
 
         handleBtnProfission();
         awaitingProfission = true;
@@ -401,14 +422,6 @@ const options = {
     6: "Solicitação de documento",
 };
 
-const optionsHours = {
-    1: "Solicitar 1 hora",
-    2: "Solicitar 2 horas",
-    3: "Solicitar 3 horas",
-    4: "Solicitar 4 horas",
-    5: "Outra opção"
-}
-
 const createChatLi = (message, className, isError = false) => {
     const chatLi = document.createElement('li');
     chatLi.classList.add('chat', className);
@@ -426,13 +439,6 @@ const createChatLi = (message, className, isError = false) => {
 };
 
 function handleMsgChoiceUser(options) {
-    const values = Object.keys(options);
-    values.forEach(key => {
-        chatBox.appendChild(createChatLi(`${key}. ${options[key]}`, "incoming"));
-    });
-}
-
-function handleHours(options) {
     const values = Object.keys(options);
     values.forEach(key => {
         chatBox.appendChild(createChatLi(`${key}. ${options[key]}`, "incoming"));
@@ -468,148 +474,142 @@ let awaitingNameUser = false;
 let awaitingCpfUser = false;
 let awaitingEmailUser = false;
 let awaitingProfission = false;
+let awaitingInput = false;
 
 let awaitRequestedHour = false;
 let hourRequested = "";
 
-let awaitingInput = false;
 
 const handleChat = () => {
     let userMessage = chatInput.value.trim();
 
-    // Verificação da seleção de opção principal
     if (!isNaN(parseInt(userMessage, 10)) && options[userMessage] && !awaitingInput) {
-        // Tratamento para uma opção válida somente quando não está aguardando um dado específico
         chatBox.appendChild(createChatLi(userMessage, "outgoing"));
         chatInput.value = '';
         selectedOption = userMessage;
-    
+
         switch (selectedOption) {
             case '1':
-                awaitingNameUser = true; // Ativa a flag para esperar o nome
-                awaitingInput = true; // Indica que o chatbot está aguardando uma entrada específica
-                chatBox.appendChild(createChatLi("Para justificar sua falta, por favor, informe seu nome completo.", "incoming"));
-
-                selectedOption = userMessage;
-                const selectedOptionTextOne = options[selectedOption];
-                selectedInitialOption = selectedOptionTextOne;
+                startJustificationFlow();
                 break;
             case '2':
-                awaitingNameUser = true;
-                awaitingInput = true;
-                chatBox.appendChild(createChatLi("Para solicitar horas extras, informe seu nome completo.", "incoming"));
-
-                selectedOption = userMessage;
-                const selectedOptionTextTwo = options[selectedOption];
-                selectedInitialOption = selectedOptionTextTwo;
+                startExtraHoursFlow();
                 break;
-
             case '3':
-                awaitingNameUser = true;
-                awaitingInput = true;
-                chatBox.appendChild(createChatLi("Para solicitar férias, informe seu nome completo.", "incoming"));
-
-                selectedOption = userMessage;
-                const selectedOptionTextThree = options[selectedOption];
-                selectedInitialOption = selectedOptionTextThree;
+                startVacationRequestFlow();
                 break;
-
             case '4':
-                awaitingNameUser = true;
-                awaitingInput = true;
-                chatBox.appendChild(createChatLi("Para solicitar desligamento, informe seu nome completo.", "incoming"));
-
-                selectedOption = userMessage;
-                const selectedOptionTextFour = options[selectedOption];
-                selectedInitialOption = selectedOptionTextFour;
+                startTerminationFlow();
                 break;
-
             case '5':
-                awaitingNameUser = true;
-                awaitingInput = true;
-                chatBox.appendChild(createChatLi("Para solicitar benefícios, informe seu nome completo.", "incoming"));
-
-                selectedOption = userMessage;
-                const selectedOptionTextFive = options[selectedOption];
-                selectedInitialOption = selectedOptionTextFive;
+                startBenefitsFlow();
                 break;
-
             case '6':
-                awaitingNameUser = true;
-                awaitingInput = true;
-                chatBox.appendChild(createChatLi("Para realizar a solicitação de documento, informe seu nome completo.", "incoming"));
-
-                selectedOption = userMessage;
-                const selectedOptionTextSix = options[selectedOption];
-                selectedInitialOption = selectedOptionTextSix;
+                startDocumentRequestFlow();
                 break;
-            // Continue para as demais opções
         }
     } else if (awaitingNameUser) {
-        const userNameData = userMessage.trim();
-        const firstName = userNameData.split(" ")[0];
-        
-        if (userNameData === "") {
-            chatBox.appendChild(createChatLi("O nome não pode estar vazio. Por favor, informe seu nome completo.", "incoming", true));
-        } else {
-            chatBox.appendChild(createChatLi(userNameData, "outgoing"));
-            userName = userMessage.trim();
-            chatBox.appendChild(createChatLi(`Olá, ${firstName}! Por favor, informe seu CPF.`, "incoming"));
-            chatInput.value = '';
-
-            awaitingNameUser = false; // Reseta a flag de nome
-            awaitingCpfUser = true; // Ativa a flag de CPF
-            awaitingInput = true; // Mantém a flag ativa até que o CPF seja preenchido
-        }
+        handleNameInput(userMessage);
     } else if (awaitingCpfUser) {
-        const cpfFormat = /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/;
-        const userCpfData = userMessage;
-
-        if(userCpfData === '') {
-            chatBox.appendChild(createChatLi("O CPF não pode ficar em branco. Por favor, informe seu CPF para continuarmos", "incoming", true));
-        } else {
-            if (cpfFormat.test(userMessage)) {
-                chatBox.appendChild(createChatLi(formatCpf(userCpfData), "outgoing"));
-                userCpf = userMessage.trim();
-                chatBox.appendChild(createChatLi(`Obrigado! Agora, por favor, informe seu e-mail.`, "incoming"));
-                chatInput.value = '';
-                awaitingCpfUser = false; // Reseta a flag de CPF
-                awaitingEmailUser = true; // Ativa a flag de e-mail
-            } else {
-                chatBox.appendChild(createChatLi(formatCpf(userCpf), "outgoing"));
-                chatBox.appendChild(createChatLi("CPF inválido. Por favor, insira um CPF válido.", "incoming", true));
-                chatInput.value = '';
-            }
-        }
-
+        handleCpfInput(userMessage);
     } else if (awaitingEmailUser) {
-        const emailFormat = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        const userEmailData = userMessage.trim();
-
-        if (userMessage.trim() === '') {
-            chatBox.appendChild(createChatLi("O e-mail não pode estar vazio. Por favor, informe seu e-mail", "incoming", true));
-        } else {
-            if (emailFormat.test(userMessage)) {
-                chatBox.appendChild(createChatLi(userEmailData, "outgoing"));
-                userEmail = userMessage.trim();
-                chatInput.value = '';
-                awaitingEmailUser = false; // Reseta a flag de e-mail
-                awaitingInput = false; // Libera a entrada de novas opções de menu
-
-                chatBox.appendChild(createChatLi(`Obrigado. Por favor, Informe o seu cargo.`, "incoming"));
-
-                formProfission.style.display = 'block';
-                chatBox.appendChild(formProfission);
-            } else {
-                chatBox.appendChild(createChatLi(userEmail, "outgoing"));
-                chatBox.appendChild(createChatLi("E-mail inválido. Por favor, insira um e-mail válido.", "incoming", true));
-                chatInput.value = '';
-            }
-        }
-        
+        handleEmailInput(userMessage);
     } else if (awaitingProfission) {
-        const reason = userMessage.trim();
+        handleProfessionInput(userMessage);
+    } else {
+        chatBox.appendChild(createChatLi(userMessage, "outgoing"));
+            chatBox.appendChild(createChatLi("Opção inválida. Por favor, escolha uma opção válida entre 1 e 5.", "incoming", true));
+            chatInput.value = '';
+            handleMessageInit(options);
+    }
+};
 
+// Funções específicas para cada fluxo de opção
+const startJustificationFlow = () => {
+    awaitingNameUser = true;
+    awaitingInput = true;
+    chatBox.appendChild(createChatLi("Para justificar sua falta, por favor, informe seu nome completo.", "incoming"));
+    selectedInitialOption = options[selectedOption];
+};
+
+const startExtraHoursFlow = () => {
+    awaitingNameUser = true;
+    awaitingInput = true;
+    chatBox.appendChild(createChatLi("Para solicitar horas extras, informe seu nome completo.", "incoming"));
+    selectedInitialOption = options[selectedOption];
+};
+
+// Continue com as funções `startVacationRequestFlow`, `startTerminationFlow`, `startBenefitsFlow`, `startDocumentRequestFlow` e outras opções se necessário
+
+// Funções de tratamento de entrada
+const handleNameInput = (userMessage) => {
+    const userNameData = userMessage.trim();
+    const firstName = userNameData.split(" ")[0];
+
+    if (userNameData === "") {
+        chatBox.appendChild(createChatLi("O nome não pode estar vazio. Por favor, informe seu nome completo.", "incoming", true));
+    } else {
+        chatBox.appendChild(createChatLi(userNameData, "outgoing"));
+        userName = userMessage.trim();
+        chatBox.appendChild(createChatLi(`Olá, ${firstName}! Por favor, informe seu CPF.`, "incoming"));
+        chatInput.value = '';
+        awaitingNameUser = false;
+        awaitingCpfUser = true;
+    }
+};
+
+const handleCpfInput = (userMessage) => {
+    const cpfFormat = /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/;
+    const userCpfData = userMessage.trim();
+
+    if(userCpfData === '') {
+        chatBox.appendChild(createChatLi("O CPF não pode ficar em branco. Por favor, informe seu CPF para continuarmos", "incoming", true));
+    } else {
+        if (cpfFormat.test(userMessage)) {
+            chatBox.appendChild(createChatLi(formatCpf(userCpfData), "outgoing"));
+            userCpf = userCpfData;
+            chatBox.appendChild(createChatLi(`Obrigado! Agora, por favor, informe seu e-mail.`, "incoming"));
+            chatInput.value = '';
+            awaitingCpfUser = false; // Reseta a flag de CPF
+            awaitingEmailUser = true; // Ativa a flag de e-mail
+        } else {
+            chatBox.appendChild(createChatLi(formatCpf(userCpfData), "outgoing"));
+            chatBox.appendChild(createChatLi("CPF inválido. Por favor, insira um CPF válido.", "incoming", true));
+            chatInput.value = '';
+        }
+    }
+}
+
+const handleEmailInput = (userMessage) => {
+    const emailFormat = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const userEmailData = userMessage.trim();
+
+    if (userMessage.trim() === '') {
+        chatBox.appendChild(createChatLi("O e-mail não pode estar vazio. Por favor, informe seu e-mail", "incoming", true));
+    } else {
+        if (emailFormat.test(userMessage)) {
+            chatBox.appendChild(createChatLi(userEmailData, "outgoing"));
+            userEmail = userMessage.trim();
+            chatInput.value = '';
+            awaitingEmailUser = false; // Reseta a flag de e-mail
+            awaitingInput = false; // Libera a entrada de novas opções de menu
+
+            chatBox.appendChild(createChatLi(`Obrigado. Por favor, Informe o seu cargo.`, "incoming"));
+
+            formProfission.style.display = 'block';
+            chatBox.appendChild(formProfission);
+        } else {
+            chatBox.appendChild(createChatLi(userEmailData, "outgoing"));
+            chatBox.appendChild(createChatLi("E-mail inválido. Por favor, insira um e-mail válido.", "incoming", true));
+            chatInput.value = '';
+        }
+}
+}
+
+const handleProfessionInput = (userMessage) => {
+    const reason = userMessage.trim();
+
+    if(selectedOption === '1') {
         if(reason === '') {
             chatBox.appendChild(createChatLi("O motivo não pode estar vazio. Por favor, informe o motivo da falta.", "incoming", true));
         } else {
@@ -620,16 +620,184 @@ const handleChat = () => {
             formDate.style.display = 'block';
             chatBox.appendChild(formDate);
         }
-        
     }
 
-     else {
-        chatBox.appendChild(createChatLi(userMessage, "outgoing"));
-        chatBox.appendChild(createChatLi("Opção inválida. Por favor, escolha uma opção válida entre 1 e 5.", "incoming", true));
-        chatInput.value = '';
-        handleMessageInit(options);
+
+    if(selectedOption === '2') {
+        if(reason === '') {
+            chatBox.appendChild(createChatLi("O motivo não pode estar vazio. Por favor, informe o motivo da sua solicitação.", "incoming", true));
+        } else {
+            chatBox.appendChild(createChatLi(reason, "outgoing"));
+            detailsRequest = userMessage.trim();
+            chatBox.appendChild(createChatLi(`Quantas horas extras você deseja solicitar?`, "incoming"));
+            chatInput.value = '';
+            formHour.style.display = 'block';
+            chatBox.appendChild(formHour);
+        }
     }
-};
+}
+
+// const handleHours = (userMessage) => {
+//     chatBox.appendChild(createChatLi(`Quantas horas extras você deseja solicitar?`, "incoming"));
+// }
+
+
+// const handleChat = () => {
+//     let userMessage = chatInput.value.trim();
+
+//     // Verificação da seleção de opção principal
+//     if (!isNaN(parseInt(userMessage, 10)) && options[userMessage] && !awaitingInput) {
+//         // Tratamento para uma opção válida somente quando não está aguardando um dado específico
+//         chatBox.appendChild(createChatLi(userMessage, "outgoing"));
+//         chatInput.value = '';
+//         selectedOption = userMessage;
+    
+//         switch (selectedOption) {
+//             case '1':
+//                 awaitingNameUser = true; // Ativa a flag para esperar o nome
+//                 awaitingInput = true; // Indica que o chatbot está aguardando uma entrada específica
+//                 chatBox.appendChild(createChatLi("Para justificar sua falta, por favor, informe seu nome completo.", "incoming"));
+
+//                 selectedOption = userMessage;
+//                 const selectedOptionTextOne = options[selectedOption];
+//                 selectedInitialOption = selectedOptionTextOne;
+//                 break;
+//             case '2':
+//                 awaitingNameUser = true;
+//                 awaitingInput = true;
+//                 chatBox.appendChild(createChatLi("Para solicitar horas extras, informe seu nome completo.", "incoming"));
+
+//                 selectedOption = userMessage;
+//                 const selectedOptionTextTwo = options[selectedOption];
+//                 selectedInitialOption = selectedOptionTextTwo;
+//                 break;
+
+//             case '3':
+//                 awaitingNameUser = true;
+//                 awaitingInput = true;
+//                 chatBox.appendChild(createChatLi("Para solicitar férias, informe seu nome completo.", "incoming"));
+
+//                 selectedOption = userMessage;
+//                 const selectedOptionTextThree = options[selectedOption];
+//                 selectedInitialOption = selectedOptionTextThree;
+//                 break;
+
+//             case '4':
+//                 awaitingNameUser = true;
+//                 awaitingInput = true;
+//                 chatBox.appendChild(createChatLi("Para solicitar desligamento, informe seu nome completo.", "incoming"));
+
+//                 selectedOption = userMessage;
+//                 const selectedOptionTextFour = options[selectedOption];
+//                 selectedInitialOption = selectedOptionTextFour;
+//                 break;
+
+//             case '5':
+//                 awaitingNameUser = true;
+//                 awaitingInput = true;
+//                 chatBox.appendChild(createChatLi("Para solicitar benefícios, informe seu nome completo.", "incoming"));
+
+//                 selectedOption = userMessage;
+//                 const selectedOptionTextFive = options[selectedOption];
+//                 selectedInitialOption = selectedOptionTextFive;
+//                 break;
+
+//             case '6':
+//                 awaitingNameUser = true;
+//                 awaitingInput = true;
+//                 chatBox.appendChild(createChatLi("Para realizar a solicitação de documento, informe seu nome completo.", "incoming"));
+
+//                 selectedOption = userMessage;
+//                 const selectedOptionTextSix = options[selectedOption];
+//                 selectedInitialOption = selectedOptionTextSix;
+//                 break;
+//             // Continue para as demais opções
+//         }
+//     } else if (awaitingNameUser) {
+//         const userNameData = userMessage.trim();
+//         const firstName = userNameData.split(" ")[0];
+        
+//         if (userNameData === "") {
+//             chatBox.appendChild(createChatLi("O nome não pode estar vazio. Por favor, informe seu nome completo.", "incoming", true));
+//         } else {
+//             chatBox.appendChild(createChatLi(userNameData, "outgoing"));
+//             userName = userMessage.trim();
+//             chatBox.appendChild(createChatLi(`Olá, ${firstName}! Por favor, informe seu CPF.`, "incoming"));
+//             chatInput.value = '';
+
+//             awaitingNameUser = false; // Reseta a flag de nome
+//             awaitingCpfUser = true; // Ativa a flag de CPF
+//             awaitingInput = true; // Mantém a flag ativa até que o CPF seja preenchido
+//         }
+//     } else if (awaitingCpfUser) {
+//         const cpfFormat = /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/;
+//         const userCpfData = userMessage;
+
+//         if(userCpfData === '') {
+//             chatBox.appendChild(createChatLi("O CPF não pode ficar em branco. Por favor, informe seu CPF para continuarmos", "incoming", true));
+//         } else {
+//             if (cpfFormat.test(userMessage)) {
+//                 chatBox.appendChild(createChatLi(formatCpf(userCpfData), "outgoing"));
+//                 userCpf = userMessage.trim();
+//                 chatBox.appendChild(createChatLi(`Obrigado! Agora, por favor, informe seu e-mail.`, "incoming"));
+//                 chatInput.value = '';
+//                 awaitingCpfUser = false; // Reseta a flag de CPF
+//                 awaitingEmailUser = true; // Ativa a flag de e-mail
+//             } else {
+//                 chatBox.appendChild(createChatLi(formatCpf(userCpf), "outgoing"));
+//                 chatBox.appendChild(createChatLi("CPF inválido. Por favor, insira um CPF válido.", "incoming", true));
+//                 chatInput.value = '';
+//             }
+//         }
+
+//     } else if (awaitingEmailUser) {
+//         const emailFormat = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+//         const userEmailData = userMessage.trim();
+
+//         if (userMessage.trim() === '') {
+//             chatBox.appendChild(createChatLi("O e-mail não pode estar vazio. Por favor, informe seu e-mail", "incoming", true));
+//         } else {
+//             if (emailFormat.test(userMessage)) {
+//                 chatBox.appendChild(createChatLi(userEmailData, "outgoing"));
+//                 userEmail = userMessage.trim();
+//                 chatInput.value = '';
+//                 awaitingEmailUser = false; // Reseta a flag de e-mail
+//                 awaitingInput = false; // Libera a entrada de novas opções de menu
+
+//                 chatBox.appendChild(createChatLi(`Obrigado. Por favor, Informe o seu cargo.`, "incoming"));
+
+//                 formProfission.style.display = 'block';
+//                 chatBox.appendChild(formProfission);
+//             } else {
+//                 chatBox.appendChild(createChatLi(userEmail, "outgoing"));
+//                 chatBox.appendChild(createChatLi("E-mail inválido. Por favor, insira um e-mail válido.", "incoming", true));
+//                 chatInput.value = '';
+//             }
+//         }
+        
+//     } else if (awaitingProfission) {
+//         const reason = userMessage.trim();
+
+//         if(reason === '') {
+//             chatBox.appendChild(createChatLi("O motivo não pode estar vazio. Por favor, informe o motivo da falta.", "incoming", true));
+//         } else {
+//             chatBox.appendChild(createChatLi(reason, "outgoing"));
+//             detailsRequest = userMessage.trim();
+//             chatBox.appendChild(createChatLi(`Obrigado. Por favor, insira a data da falta.`, "incoming"));
+//             chatInput.value = '';
+//             formDate.style.display = 'block';
+//             chatBox.appendChild(formDate);
+//         }
+        
+//     }
+
+//      else {
+//         chatBox.appendChild(createChatLi(userMessage, "outgoing"));
+//         chatBox.appendChild(createChatLi("Opção inválida. Por favor, escolha uma opção válida entre 1 e 5.", "incoming", true));
+//         chatInput.value = '';
+//         handleMessageInit(options);
+//     }
+// };
 
 
 function handleMessageInit(options) {
