@@ -48,30 +48,30 @@ const getDateCurrentWithFormatting = () => {
     return `${year}-${month}-${day}`;
 }
 
-function UserDatas() {
-    const userData = {
-        name: userName,
-        cpf: userCpf,
-        email: userEmail,
-        descricao: detailsRequest,
-        tipo_processo: selectedInitialOption || '',
-        data_solicitacao: userDate || getDateCurrentWithFormatting(),
-        urgencia: nivelUrgencyRequest || '',
-        status: nivelStatusRequested || '',
-        id_destinatario: funcionarioId || null,
-        id_funcionario: funcionarioId || null,
-        hour: hourRequested,
-    };
+// function UserDatas() {
+//     const userData = {
+//         name: userName,
+//         cpf: userCpf,
+//         email: userEmail,
+//         descricao: detailsRequest,
+//         tipo_processo: selectedInitialOption || '',
+//         data_solicitacao: userDate || getDateCurrentWithFormatting(),
+//         urgencia: nivelUrgencyRequest || '',
+//         status: nivelStatusRequested || '',
+//         id_destinatario: funcionarioId || null,
+//         id_funcionario: funcionarioId || null,
+//         hour: hourRequested,
+//     };
 
-    console.log(`Nome: ${userData.name}`);
-    console.log(`Data: ${userData.data_solicitacao}`);
-    console.log(`CPF: ${userData.cpf}`);
-    console.log(`Descrição: ${userData.descricao}`);
-    console.log(`Tipo de processo: ${userData.tipo_processo}`);
-    console.log(`Urgência: ${userData.urgencia}`);
-    console.log(`Status: ${userData.status}`);
-    console.log(`Horas: ${userData.hour}`);
-}
+//     console.log(`Nome: ${userData.name}`);
+//     console.log(`Data: ${userData.data_solicitacao}`);
+//     console.log(`CPF: ${userData.cpf}`);
+//     console.log(`Descrição: ${userData.descricao}`);
+//     console.log(`Tipo de processo: ${userData.tipo_processo}`);
+//     console.log(`Urgência: ${userData.urgencia}`);
+//     console.log(`Status: ${userData.status}`);
+//     console.log(`Horas: ${userData.hour}`);
+// }
 
 function preventButton() {
     document.addEventListener('DOMContentLoaded', function() {
@@ -367,7 +367,7 @@ function handleArchive() {
                 btn.disabled = true;
             });
 
-            UserDatas();
+            // UserDatas();
             cadastrarFuncionario();
             sendUserDataProcessos();
         });
