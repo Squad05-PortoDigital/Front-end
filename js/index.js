@@ -6,6 +6,10 @@ const chatbotCloseBtn = document.querySelector('.close-btn');
 const fileInput = document.getElementById('fileInput');
 const formHour = document.getElementById('formHour');
 const formDate = document.getElementById('formDate');
+
+const formDateInit = document.getElementById('FieldDate');
+const formDateEnd = document.getElementById('FieldDate');
+
 const formProfission = document.getElementById('formProfission');
 const btnHourRequested = document.querySelector('#btn-send-hourRequested');
 const btnDateInsert = document.querySelector('#btn-send-dateInsert');
@@ -135,12 +139,13 @@ dataFuncionarios();
 dataProcessos();
 
 function handleGroupBtnsUrgency() {
-    buttonsNivelUrgency.forEach((button, index) => {
+    buttonsNivelUrgency.forEach((button) => {
         button.addEventListener('click', () => {
             const buttonText = button.textContent;
             nivelUrgencyRequest = buttonText;
             chatBox.appendChild(createChatLi(buttonText, "outgoing"));
-        
+
+            // Desabilita todos os botões após a seleção
             buttonsNivelUrgency.forEach((btn) => {
                 btn.disabled = true;
             });
@@ -148,9 +153,10 @@ function handleGroupBtnsUrgency() {
             chatBox.appendChild(createChatLi("Obrigado. Qual é o status da solicitação?", "incoming"));
             buttonGroupStatus.style.display = 'block';
             chatBox.appendChild(buttonGroupStatus);
-        })
+        });
     });
 }
+
 
 function handleGroupBtnsStatus() {
     buttonNivelStatus.forEach((button, index) => {
@@ -169,6 +175,10 @@ function handleGroupBtnsStatus() {
 
             if(selectedOption === '2') {
                 chatBox.appendChild(createChatLi("Você gostaria de anexar algum documento para justificar sua solicitação de hora extra?", "incoming"));
+            }
+
+            if(selectedOption === '3') {
+                chatBox.appendChild(createChatLi("Para prosseguir, você quer incluir algum arquivo com essa solicitação?", "incoming"));
             }
 
             buttonGroupArchive.style.display = 'block';
@@ -428,8 +438,8 @@ function handleBtnDate() {
         
         chatBox.appendChild(createChatLi(DateInsert, "outgoing"));
         btnDateInsert.disabled = true;
-        chatBox.appendChild(createChatLi("Obrigado. Qual é o nível de urgência da sua solicitação?", "incoming"));
-        
+
+        chatBox.appendChild(createChatLi("Obrigado. Qual é o nível de urgência da sua solicitação?", "incoming"));      
         btnGroupUrgency.style.display = 'block';
         chatBox.appendChild(btnGroupUrgency);
     });
@@ -448,6 +458,8 @@ function handleBtnProfission() {
         if(selectedOption === '1') {
              chatBox.appendChild(createChatLi("Obrigado. Por favor, informe o motivo da falta.", "incoming"));
         } else if(selectedOption === '2') {
+            chatBox.appendChild(createChatLi("Obrigado. Por favor, descreva o motivo da sua solicitação.", "incoming"));
+        }  else if(selectedOption === '3') {
             chatBox.appendChild(createChatLi("Obrigado. Por favor, descreva o motivo da sua solicitação.", "incoming"));
         }
 
@@ -525,7 +537,6 @@ let awaitingCpfUser = false;
 let awaitingEmailUser = false;
 let awaitingProfission = false;
 let awaitingInput = false;
-
 let awaitRequestedHour = false;
 let hourRequested = "";
 
@@ -586,6 +597,13 @@ const startExtraHoursFlow = () => {
     awaitingNameUser = true;
     awaitingInput = true;
     chatBox.appendChild(createChatLi("Para solicitar horas extras, informe seu nome completo.", "incoming"));
+    selectedInitialOption = options[selectedOption];
+};
+
+const startVacationRequestFlow = () => {
+    awaitingNameUser = true;
+    awaitingInput = true;
+    chatBox.appendChild(createChatLi("Para solicitar horas férias, informe seu nome completo.", "incoming"));
     selectedInitialOption = options[selectedOption];
 };
 
@@ -685,6 +703,55 @@ const handleProfessionInput = (userMessage) => {
             chatBox.appendChild(formHour);
         }
     }
+
+    if (selectedOption === '3') {
+        if (reason === '') {
+            chatBox.appendChild(createChatLi("O motivo não pode estar vazio. Por favor, informe o motivo da sua solicitação.", "incoming", true));
+        } else {
+            chatBox.appendChild(createChatLi(reason, "outgoing"));
+            detailsRequest = reason;
+    
+            // Solicita a data de início das férias
+            chatBox.appendChild(createChatLi("Por favor, informe a data de início das férias.", "incoming"));
+            chatInput.value = '';
+    
+            // Exibe o campo de data de início
+            formDateInit.style.display = 'block';
+            chatBox.appendChild(formDateInit);
+    
+            // Listener para capturar a data de início
+            formDateInit.addEventListener('change', (event) => {
+                const startDate = event.target.value; // Captura a data de início inserida
+                if (startDate) {
+                    chatBox.appendChild(createChatLi(`Data de início registrada: ${startDate}.`, "outgoing"));
+                    
+                    // Solicita a data de término das férias
+                    chatBox.appendChild(createChatLi("Agora, informe a data final das férias.", "incoming"));
+                    formDateInit.style.display = 'none'; // Opcional: oculta o campo de início após preenchimento
+                    
+                    // Exibe o campo de data de término
+                    formDateEnd.style.display = 'block';
+                    chatBox.appendChild(formDateEnd);
+    
+                    // Listener para capturar a data de término
+                    formDateEnd.addEventListener('change', (event) => {
+                        const endDate = event.target.value; // Captura a data de término inserida
+                        if (endDate) {
+                            chatBox.appendChild(createChatLi(`Data de término registrada: ${endDate}.`, "outgoing"));
+                            formDateEnd.style.display = 'none'; // Opcional: oculta o campo de término após preenchimento
+                            chatInput.value = ''; // Limpa o campo de input, se necessário
+                            // chatBox.appendChild(createChatLi(`Segue o fluxo`, "incoming"));
+                            chatBox.appendChild(createChatLi("Obrigado. Qual é o nível de urgência da sua solicitação?", "incoming"));      
+                            btnGroupUrgency.style.display = 'block';
+                            chatBox.appendChild(btnGroupUrgency);
+                        }
+                    }, { once: true });
+                }
+            }, { once: true });
+
+        }
+    }
+    
 }
 
 // const handleHours = (userMessage) => {
