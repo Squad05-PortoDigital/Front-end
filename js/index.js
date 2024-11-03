@@ -22,6 +22,8 @@ const buttonCertificationMedicate = document.querySelectorAll('#btnCertificate')
 
 const formUpload = document.getElementById('uploadForm');
 
+let userName = ""; // Inicialização da variável userName
+let userCpf = ""; // Inicialização da variável userCpf
 let userEmail = ""; // Variável global para armazenar o email
 let profissionSelected = ""; // Variável global para armazenar o cargo
 let detailsRequest = ""; // Armazena o detalhes da solicitação
@@ -32,6 +34,35 @@ let nivelStatusRequested = "";
 let funcionarioId = "";
 let awaitingMedicalCertificateChoice = false;
 let selectedFile;
+
+let selectedOption = "";
+let selectedChoice = "";
+
+function handleDataUser() {
+    const removeFormatCpf = userCpf.replace(/\./g, '').replace(/-/g, '');
+
+    const userData = {
+        nome: userName,
+        cpf: removeFormatCpf,
+        email: userEmail,
+        cargo: profissionSelected,
+        urgency: nivelUrgencyRequest,
+        status: nivelStatusRequested,
+        details: detailsRequest,
+        process: selectedInitialOption,
+        date: userDate,
+    };
+
+    console.log(`Nome: ${userData.nome}`)
+    console.log(`CPF: ${userData.cpf}`)
+    console.log(`Data: ${userData.date}`)
+    console.log(`email: ${userData.email}`)
+    console.log(`Cargo: ${userData.cargo}`)
+    console.log(`Urgência: ${userData.urgency}`)
+    console.log(`Status: ${userData.status}`);
+    console.log(`Detalhes: ${userData.details}`);
+    console.log(`Tipo do processo: ${userData.process}`);
+}
 
 function preventButton() {
     document.addEventListener('DOMContentLoaded', function() {
@@ -317,6 +348,8 @@ function handleBtnCertificateMedicial() {
             cadastrarFuncionario();
             sendUserDataProcessos();
 
+            handleDataUser();
+
             buttonCertificationMedicate.forEach((btn) => {
                 btn.disabled = true;
             });
@@ -449,16 +482,6 @@ function formatCpf(cpf) {
     return cpf;
 }
 
-
-let selectedOption = "";
-let selectedChoice = "";
-let userName = ""; // Inicialização da variável userName
-let userCpf = ""; // Inicialização da variável userCpf
-let absenceDate = ""; // Variável para armazenar a data da falta
-let absenceReason = ""; // Variável para armazenar o motivo da falta
-let hasMedicalCertificate = ""; // Variável para armazenar a resposta sobre o atestado
-let MedicalCertificate = false;
-
 const resetForm = () => {
     selectedOption = "";
     userName = "";
@@ -494,46 +517,71 @@ const handleChat = () => {
                 awaitingNameUser = true; // Ativa a flag para esperar o nome
                 awaitingInput = true; // Indica que o chatbot está aguardando uma entrada específica
                 chatBox.appendChild(createChatLi("Para justificar sua falta, por favor, informe seu nome completo.", "incoming"));
+
+                selectedOption = userMessage;
+                const selectedOptionTextOne = options[selectedOption];
+                selectedInitialOption = selectedOptionTextOne;
                 break;
             case '2':
                 awaitingNameUser = true;
                 awaitingInput = true;
                 chatBox.appendChild(createChatLi("Para solicitar horas extras, informe seu nome completo.", "incoming"));
+
+                selectedOption = userMessage;
+                const selectedOptionTextTwo = options[selectedOption];
+                selectedInitialOption = selectedOptionTextTwo;
                 break;
 
             case '3':
                 awaitingNameUser = true;
                 awaitingInput = true;
                 chatBox.appendChild(createChatLi("Para solicitar férias, informe seu nome completo.", "incoming"));
+
+                selectedOption = userMessage;
+                const selectedOptionTextThree = options[selectedOption];
+                selectedInitialOption = selectedOptionTextThree;
                 break;
 
             case '4':
                 awaitingNameUser = true;
                 awaitingInput = true;
                 chatBox.appendChild(createChatLi("Para solicitar desligamento, informe seu nome completo.", "incoming"));
+
+                selectedOption = userMessage;
+                const selectedOptionTextFour = options[selectedOption];
+                selectedInitialOption = selectedOptionTextFour;
                 break;
 
             case '5':
                 awaitingNameUser = true;
                 awaitingInput = true;
                 chatBox.appendChild(createChatLi("Para solicitar benefícios, informe seu nome completo.", "incoming"));
+
+                selectedOption = userMessage;
+                const selectedOptionTextFive = options[selectedOption];
+                selectedInitialOption = selectedOptionTextFive;
                 break;
 
             case '6':
                 awaitingNameUser = true;
                 awaitingInput = true;
                 chatBox.appendChild(createChatLi("Para realizar a solicitação de documento, informe seu nome completo.", "incoming"));
+
+                selectedOption = userMessage;
+                const selectedOptionTextSix = options[selectedOption];
+                selectedInitialOption = selectedOptionTextSix;
                 break;
             // Continue para as demais opções
         }
     } else if (awaitingNameUser) {
-        const userName = userMessage.trim();
-        const firstName = userName.split(" ")[0];
+        const userNameData = userMessage.trim();
+        const firstName = userNameData.split(" ")[0];
         
-        if (userName === "") {
+        if (userNameData === "") {
             chatBox.appendChild(createChatLi("O nome não pode estar vazio. Por favor, informe seu nome completo.", "incoming", true));
         } else {
-            chatBox.appendChild(createChatLi(userName, "outgoing"));
+            chatBox.appendChild(createChatLi(userNameData, "outgoing"));
+            userName = userMessage.trim();
             chatBox.appendChild(createChatLi(`Olá, ${firstName}! Por favor, informe seu CPF.`, "incoming"));
             chatInput.value = '';
 
@@ -543,13 +591,14 @@ const handleChat = () => {
         }
     } else if (awaitingCpfUser) {
         const cpfFormat = /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/;
-        const userCpf = userMessage;
+        const userCpfData = userMessage;
 
-        if(userCpf === '') {
+        if(userCpfData === '') {
             chatBox.appendChild(createChatLi("O CPF não pode ficar em branco. Por favor, informe seu CPF para continuarmos", "incoming", true));
         } else {
             if (cpfFormat.test(userMessage)) {
-                chatBox.appendChild(createChatLi(formatCpf(userCpf), "outgoing"));
+                chatBox.appendChild(createChatLi(formatCpf(userCpfData), "outgoing"));
+                userCpf = userMessage.trim();
                 chatBox.appendChild(createChatLi(`Obrigado! Agora, por favor, informe seu e-mail.`, "incoming"));
                 chatInput.value = '';
                 awaitingCpfUser = false; // Reseta a flag de CPF
@@ -563,13 +612,14 @@ const handleChat = () => {
 
     } else if (awaitingEmailUser) {
         const emailFormat = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        const userEmail = userMessage;
+        const userEmailData = userMessage.trim();
 
         if (userMessage.trim() === '') {
             chatBox.appendChild(createChatLi("O e-mail não pode estar vazio. Por favor, informe seu e-mail", "incoming", true));
         } else {
             if (emailFormat.test(userMessage)) {
-                chatBox.appendChild(createChatLi(userEmail, "outgoing"));
+                chatBox.appendChild(createChatLi(userEmailData, "outgoing"));
+                userEmail = userMessage.trim();
                 chatInput.value = '';
                 awaitingEmailUser = false; // Reseta a flag de e-mail
                 awaitingInput = false; // Libera a entrada de novas opções de menu
@@ -592,6 +642,7 @@ const handleChat = () => {
             chatBox.appendChild(createChatLi("O motivo não pode estar vazio. Por favor, informe o motivo da falta.", "incoming", true));
         } else {
             chatBox.appendChild(createChatLi(reason, "outgoing"));
+            detailsRequest = userMessage.trim();
             chatBox.appendChild(createChatLi(`Obrigado. Por favor, insira a data da falta.`, "incoming"));
             chatInput.value = '';
             formDate.style.display = 'block';
