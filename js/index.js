@@ -17,8 +17,8 @@ const buttonsNivelUrgency = document.querySelectorAll('#btnUrgency');
 const buttonGroupStatus = document.querySelector('#btns-groupStatus');
 const buttonNivelStatus = document.querySelectorAll('#btnStatus');
 
-const buttonGroupCertificationMedicate = document.getElementById('btns-groupCertificate');
-const buttonCertificationMedicate = document.querySelectorAll('#btnCertificate');
+const buttonGroupArchive = document.getElementById('btns-groupArchive');
+const buttonArchive = document.querySelectorAll('#btnArchive');
 
 const formUpload = document.getElementById('uploadForm');
 
@@ -31,12 +31,47 @@ let selectedInitialOption = "";
 let userDate = "";
 let nivelUrgencyRequest = "";
 let nivelStatusRequested = "";
+let hoursRequested = "";
 let funcionarioId = "";
 let awaitingMedicalCertificateChoice = false;
 let selectedFile;
 
 let selectedOption = "";
 let selectedChoice = "";
+
+const getDateCurrentWithFormatting = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+}
+
+function UserDatas() {
+    const userData = {
+        name: userName,
+        cpf: userCpf,
+        email: userEmail,
+        descricao: detailsRequest,
+        tipo_processo: selectedInitialOption || '',
+        data_solicitacao: userDate || getDateCurrentWithFormatting(),
+        urgencia: nivelUrgencyRequest || '',
+        status: nivelStatusRequested || '',
+        id_destinatario: funcionarioId || null,
+        id_funcionario: funcionarioId || null,
+        hour: hourRequested,
+    };
+
+    console.log(`Nome: ${userData.name}`);
+    console.log(`Data: ${userData.data_solicitacao}`);
+    console.log(`CPF: ${userData.cpf}`);
+    console.log(`Descrição: ${userData.descricao}`);
+    console.log(`Tipo de processo: ${userData.tipo_processo}`);
+    console.log(`Urgência: ${userData.urgencia}`);
+    console.log(`Status: ${userData.status}`);
+    console.log(`Horas: ${userData.hour}`);
+}
 
 function preventButton() {
     document.addEventListener('DOMContentLoaded', function() {
@@ -136,9 +171,9 @@ function handleGroupBtnsStatus() {
                 chatBox.appendChild(createChatLi("Você gostaria de anexar algum documento para justificar sua solicitação de hora extra?", "incoming"));
             }
 
-            buttonGroupCertificationMedicate.style.display = 'block';
-            chatBox.appendChild(buttonGroupCertificationMedicate);
-            handleBtnCertificateMedicial();
+            buttonGroupArchive.style.display = 'block';
+            chatBox.appendChild(buttonGroupArchive);
+            handleArchive();
         })
     });
 }
@@ -182,11 +217,11 @@ async function sendUserDataProcessos(funcionarioId) {
     button.disabled = true;
 
     const userData = {
-        descricao: detailsRequest || '',
-        tipo_processo: selectedInitialOption || '',
-        data_solicitacao: userDate || '',
-        urgencia: nivelUrgencyRequest || '',
-        status: nivelStatusRequested || '',
+        descricao: selectedOption === '1' ? detailsRequest : hourRequested,
+        tipo_processo: selectedInitialOption,
+        data_solicitacao: userDate || getDateCurrentWithFormatting(),
+        urgencia: nivelUrgencyRequest,
+        status: nivelStatusRequested,
         id_destinatario: funcionarioId || null,
         id_funcionario: funcionarioId || null,
     };
@@ -298,7 +333,6 @@ async function sendFile(idOcorrencia) {
         })
         .then(data => {
             document.getElementById('btn-send-file').disabled = true;
-            chatBox.appendChild(createChatLi("Sua justificativa foi registrada com sucesso!", "incoming"));
         })
         .catch(error => {
             console.error('Erro ao fazer upload:', error);
@@ -307,8 +341,8 @@ async function sendFile(idOcorrencia) {
 }
 
 
-function handleBtnCertificateMedicial() {
-    buttonCertificationMedicate.forEach((button) => {
+function handleArchive() {
+    buttonArchive.forEach((button) => {
         button.addEventListener('click', () => {
             const buttonText = button.textContent;
             chatBox.appendChild(createChatLi(buttonText, "outgoing"));
@@ -323,16 +357,19 @@ function handleBtnCertificateMedicial() {
                 chatBox.appendChild(formUpload);
             } else {
                 chatBox.appendChild(createChatLi("Sua solicitação foi recebida. Acompanhe seu e-mail para mais detalhes.", "incoming"));
-                cadastrarFuncionario();
-                sendUserDataProcessos();
+
                 document.getElementById('buttonGenerate').style.display = 'block';
                 chatBox.appendChild(document.getElementById('buttonGenerate'));
             }
 
             // Desabilita todos os botões após a escolha
-            buttonCertificationMedicate.forEach((btn) => {
+            buttonArchive.forEach((btn) => {
                 btn.disabled = true;
             });
+
+            UserDatas();
+            cadastrarFuncionario();
+            sendUserDataProcessos();
         });
     });
 }
@@ -354,16 +391,22 @@ function handleBtnHour() {
 
     btnHourRequested.addEventListener('click', (e) => {
         e.preventDefault();
-        const hourRequested = hourInput.value.trim();
-        const [hour, minute] = hourRequested.split(":");
+        const hourInputValue = hourInput.value.trim(); // Armazena o valor de entrada
+        const [hour, minute] = hourInputValue.split(":");
         
-        chatBox.appendChild(createChatLi(`${hour} hora(s) e ${minute} minuto(s).`, "outgoing"));
-        
-        btnHourRequested.disabled = true;
+        if (hour && minute) {
+            // Formata o valor para a variável hourRequested
+            hourRequested = `${hour} hora(s) e ${minute} minuto(s)`;
+            chatBox.appendChild(createChatLi(hourRequested, "outgoing"));
+            
+            btnHourRequested.disabled = true;
 
-        chatBox.appendChild(createChatLi("Obrigado. Qual é o status da solicitação?", "incoming"));
-        buttonGroupStatus.style.display = 'block';
-        chatBox.appendChild(buttonGroupStatus);
+            chatBox.appendChild(createChatLi("Obrigado. Qual é o nível de urgência da sua solicitação?", "incoming"));
+            btnGroupUrgency.style.display = 'block';
+            chatBox.appendChild(btnGroupUrgency);
+        } else {
+            chatBox.appendChild(createChatLi("Por favor, insira um horário válido.", "incoming", true));
+        }
     });
 }
 
@@ -372,10 +415,8 @@ function handleBtnDate() {
     const dateInput = document.querySelector('#date');
     const btnDateInsert = document.querySelector('#btn-send-dateInsert');
 
-    // Desabilita o botão inicialmente
     btnDateInsert.disabled = true;
 
-    // Habilita o botão se o campo de data tiver algum valor
     dateInput.addEventListener('input', () => {
         btnDateInsert.disabled = dateInput.value.trim() === '';
     });
@@ -406,7 +447,7 @@ function handleBtnProfission() {
         
         if(selectedOption === '1') {
              chatBox.appendChild(createChatLi("Obrigado. Por favor, informe o motivo da falta.", "incoming"));
-        }else if(selectedOption === '2') {
+        } else if(selectedOption === '2') {
             chatBox.appendChild(createChatLi("Obrigado. Por favor, descreva o motivo da sua solicitação.", "incoming"));
         }
 
