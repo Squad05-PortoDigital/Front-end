@@ -128,8 +128,14 @@ function handleGroupBtnsStatus() {
                 btn.disabled = true;
             });
 
-            
-            chatBox.appendChild(createChatLi("Você possui atestado médico?", "incoming"));
+            if(selectedOption === '1') {
+                chatBox.appendChild(createChatLi("Você possui atestado médico?", "incoming"));
+            }
+
+            if(selectedOption === '2') {
+                chatBox.appendChild(createChatLi("Você gostaria de anexar algum documento para justificar sua solicitação de hora extra?", "incoming"));
+            }
+
             buttonGroupCertificationMedicate.style.display = 'block';
             chatBox.appendChild(buttonGroupCertificationMedicate);
             handleBtnCertificateMedicial();
@@ -307,8 +313,12 @@ function handleBtnCertificateMedicial() {
             const buttonText = button.textContent;
             chatBox.appendChild(createChatLi(buttonText, "outgoing"));
 
-            if (buttonText === 'Sim') {
+            if (buttonText === 'Sim' && selectedOption === '1') {
                 chatBox.appendChild(createChatLi("Por favor, anexe o atestado.", "incoming"));
+                formUpload.style.display = 'block';
+                chatBox.appendChild(formUpload);
+            } else if (buttonText === 'Sim' && selectedOption === '2') {
+                chatBox.appendChild(createChatLi("Por favor, anexe o arquivo desejado.", "incoming"));
                 formUpload.style.display = 'block';
                 chatBox.appendChild(formUpload);
             } else {
@@ -319,15 +329,14 @@ function handleBtnCertificateMedicial() {
                 chatBox.appendChild(document.getElementById('buttonGenerate'));
             }
 
-            cadastrarFuncionario();
-            sendUserDataProcessos();
-
+            // Desabilita todos os botões após a escolha
             buttonCertificationMedicate.forEach((btn) => {
                 btn.disabled = true;
             });
         });
     });
 }
+
 
 
 handleGroupBtnsUrgency();
