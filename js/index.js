@@ -38,32 +38,6 @@ let selectedFile;
 let selectedOption = "";
 let selectedChoice = "";
 
-function handleDataUser() {
-    const removeFormatCpf = userCpf.replace(/\./g, '').replace(/-/g, '');
-
-    const userData = {
-        nome: userName,
-        cpf: removeFormatCpf,
-        email: userEmail,
-        cargo: profissionSelected,
-        urgency: nivelUrgencyRequest,
-        status: nivelStatusRequested,
-        details: detailsRequest,
-        process: selectedInitialOption,
-        date: userDate,
-    };
-
-    console.log(`Nome: ${userData.nome}`)
-    console.log(`CPF: ${userData.cpf}`)
-    console.log(`Data: ${userData.date}`)
-    console.log(`email: ${userData.email}`)
-    console.log(`Cargo: ${userData.cargo}`)
-    console.log(`Urgência: ${userData.urgency}`)
-    console.log(`Status: ${userData.status}`);
-    console.log(`Detalhes: ${userData.details}`);
-    console.log(`Tipo do processo: ${userData.process}`);
-}
-
 function preventButton() {
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('uploadForm');
@@ -347,8 +321,6 @@ function handleBtnCertificateMedicial() {
 
             cadastrarFuncionario();
             sendUserDataProcessos();
-
-            handleDataUser();
 
             buttonCertificationMedicate.forEach((btn) => {
                 btn.disabled = true;
