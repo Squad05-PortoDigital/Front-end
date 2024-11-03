@@ -365,7 +365,13 @@ function handleArchive() {
                 chatBox.appendChild(createChatLi("Por favor, anexe o arquivo desejado.", "incoming"));
                 formUpload.style.display = 'block';
                 chatBox.appendChild(formUpload);
-            } else {
+            } else if (buttonText === 'Sim' && selectedOption === '3') {
+                chatBox.appendChild(createChatLi("Por favor, selecione o arquivo que deseja anexar à sua solicitação.", "incoming"));
+                formUpload.style.display = 'block';
+                chatBox.appendChild(formUpload);
+            }
+            
+            else {
                 chatBox.appendChild(createChatLi("Sua solicitação foi recebida. Acompanhe seu e-mail para mais detalhes.", "incoming"));
 
                 document.getElementById('buttonGenerate').style.display = 'block';
@@ -596,14 +602,14 @@ const startJustificationFlow = () => {
 const startExtraHoursFlow = () => {
     awaitingNameUser = true;
     awaitingInput = true;
-    chatBox.appendChild(createChatLi("Para solicitar horas extras, informe seu nome completo.", "incoming"));
+    chatBox.appendChild(createChatLi("Para solicitar horas extras, por favor, informe seu nome completo.", "incoming"));
     selectedInitialOption = options[selectedOption];
 };
 
 const startVacationRequestFlow = () => {
     awaitingNameUser = true;
     awaitingInput = true;
-    chatBox.appendChild(createChatLi("Para solicitar horas férias, informe seu nome completo.", "incoming"));
+    chatBox.appendChild(createChatLi("Para solicitar férias, por favor, informe seu nome completo.", "incoming"));
     selectedInitialOption = options[selectedOption];
 };
 
