@@ -40,6 +40,10 @@ let funcionarioId = "";
 let awaitingMedicalCertificateChoice = false;
 let selectedFile;
 
+// variaveis data inicio e fim de ferias
+let dateRequestedHolidayFirst = "";
+let dateRequestedHolidayEnd = "";
+
 let selectedOption = "";
 let selectedChoice = "";
 
@@ -49,33 +53,41 @@ const getDateCurrentWithFormatting = () => {
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
 
-    return `${year}-${month}-${day}`;
+    return `${day}-${month}-${year}`;
 }
 
-// function UserDatas() {
-//     const userData = {
-//         name: userName,
-//         cpf: userCpf,
-//         email: userEmail,
-//         descricao: detailsRequest,
-//         tipo_processo: selectedInitialOption || '',
-//         data_solicitacao: userDate || getDateCurrentWithFormatting(),
-//         urgencia: nivelUrgencyRequest || '',
-//         status: nivelStatusRequested || '',
-//         id_destinatario: funcionarioId || null,
-//         id_funcionario: funcionarioId || null,
-//         hour: hourRequested,
-//     };
+function formatarDataParaBR(dataAmericana) {
+    const [ano, mes, dia] = dataAmericana.split('-');
+    return `${dia}-${mes}-${ano}`;
+}
 
-//     console.log(`Nome: ${userData.name}`);
-//     console.log(`Data: ${userData.data_solicitacao}`);
-//     console.log(`CPF: ${userData.cpf}`);
-//     console.log(`Descrição: ${userData.descricao}`);
-//     console.log(`Tipo de processo: ${userData.tipo_processo}`);
-//     console.log(`Urgência: ${userData.urgencia}`);
-//     console.log(`Status: ${userData.status}`);
-//     console.log(`Horas: ${userData.hour}`);
-// }
+function UserDatas() {
+    const userData = {
+        name: userName,
+        cpf: userCpf,
+        email: userEmail,
+        descricao: detailsRequest,
+        tipo_processo: selectedInitialOption || '',
+        data_solicitacao: formatarDataParaBR(userDate) || getDateCurrentWithFormatting(),
+        urgencia: nivelStatusRequested || '',
+        id_destinatario: funcionarioId || null,
+        id_funcionario: funcionarioId || null,
+        hour: hourRequested,
+        dateHolidayFirst: formatarDataParaBR(dateRequestedHolidayFirst),
+        dateHolidayEnd: formatarDataParaBR(dateRequestedHolidayEnd),
+        hourExtra: dateRequestedHolidayEnd,
+    };
+
+    console.log(`Nome: ${userData.name}`);
+    console.log(`Data: ${userData.data_solicitacao}`);
+    console.log(`CPF: ${userData.cpf}`);
+    console.log(`Descrição: ${userData.descricao}`);
+    console.log(`Tipo de processo: ${userData.tipo_processo}`);
+    console.log(`Urgência: ${userData.urgencia}`);
+    console.log(`Data de férias inicio: ${userData.dateHolidayFirst}`);
+    console.log(`Data de férias fim: ${userData.dateHolidayEnd}`);
+    console.log(`Horas Requisitas: ${userData.hour}`);
+}
 
 function preventButton() {
     document.addEventListener('DOMContentLoaded', function() {
@@ -138,34 +150,14 @@ async function dataProcessos() {
 dataFuncionarios();
 dataProcessos();
 
-function handleGroupBtnsUrgency() {
-    buttonsNivelUrgency.forEach((button) => {
-        button.addEventListener('click', () => {
-            const buttonText = button.textContent;
-            nivelUrgencyRequest = buttonText;
-            chatBox.appendChild(createChatLi(buttonText, "outgoing"));
-
-            // Desabilita todos os botões após a seleção
-            buttonsNivelUrgency.forEach((btn) => {
-                btn.disabled = true;
-            });
-
-            chatBox.appendChild(createChatLi("Obrigado. Qual é o status da solicitação?", "incoming"));
-            buttonGroupStatus.style.display = 'block';
-            chatBox.appendChild(buttonGroupStatus);
-        });
-    });
-}
-
-
 function handleGroupBtnsStatus() {
-    buttonNivelStatus.forEach((button, index) => {
+    buttonsNivelUrgency.forEach((button, index) => {
         button.addEventListener('click', () => {
             const buttonText = button.textContent;
             nivelStatusRequested = buttonText;
             chatBox.appendChild(createChatLi(buttonText, "outgoing"));
 
-            buttonNivelStatus.forEach((btn) => {
+            buttonsNivelUrgency.forEach((btn) => {
                 btn.disabled = true;
             });
 
@@ -227,13 +219,15 @@ async function sendUserDataProcessos(funcionarioId) {
     button.disabled = true;
 
     const userData = {
-        descricao: selectedOption === '1' ? detailsRequest : hourRequested,
+        descricao: detailsRequest,
         tipo_processo: selectedInitialOption,
-        data_solicitacao: userDate || getDateCurrentWithFormatting(),
-        urgencia: nivelUrgencyRequest,
-        status: nivelStatusRequested,
+        data_solicitacao: selectedOption === '1' ? formatarDataParaBR(userDate) : getDateCurrentWithFormatting(),
+        urgencia: nivelStatusRequested,
         id_destinatario: funcionarioId || null,
         id_funcionario: funcionarioId || null,
+        hora_extra: hourRequested || null,
+        inicio_ferias: selectedOption === '3' ? formatarDataParaBR(dateRequestedHolidayFirst) : null,
+        fim_ferias: selectedOption === '3' ? formatarDataParaBR(dateRequestedHolidayEnd) : null,
     };
     
 
@@ -383,16 +377,13 @@ function handleArchive() {
                 btn.disabled = true;
             });
 
-            // UserDatas();
+            UserDatas();
             cadastrarFuncionario();
             sendUserDataProcessos();
         });
     });
 }
 
-
-
-handleGroupBtnsUrgency();
 handleGroupBtnsStatus();
 
 function handleBtnHour() {
@@ -729,7 +720,8 @@ const handleProfessionInput = (userMessage) => {
             formDateInit.addEventListener('change', (event) => {
                 const startDate = event.target.value; // Captura a data de início inserida
                 if (startDate) {
-                    chatBox.appendChild(createChatLi(`Data de início registrada: ${startDate}.`, "outgoing"));
+                    chatBox.appendChild(createChatLi(`Data de início registrada: ${formatarDataParaBR(startDate)}.`, "outgoing"));
+                    dateRequestedHolidayFirst = startDate.trim();
                     
                     // Solicita a data de término das férias
                     chatBox.appendChild(createChatLi("Agora, informe a data final das férias.", "incoming"));
@@ -743,7 +735,8 @@ const handleProfessionInput = (userMessage) => {
                     formDateEnd.addEventListener('change', (event) => {
                         const endDate = event.target.value; // Captura a data de término inserida
                         if (endDate) {
-                            chatBox.appendChild(createChatLi(`Data de término registrada: ${endDate}.`, "outgoing"));
+                            chatBox.appendChild(createChatLi(`Data de término registrada: ${formatarDataParaBR(endDate)}.`, "outgoing"));
+                            dateRequestedHolidayEnd = endDate.trim();
                             formDateEnd.style.display = 'none'; // Opcional: oculta o campo de término após preenchimento
                             chatInput.value = ''; // Limpa o campo de input, se necessário
                             // chatBox.appendChild(createChatLi(`Segue o fluxo`, "incoming"));
@@ -759,169 +752,6 @@ const handleProfessionInput = (userMessage) => {
     }
     
 }
-
-// const handleHours = (userMessage) => {
-//     chatBox.appendChild(createChatLi(`Quantas horas extras você deseja solicitar?`, "incoming"));
-// }
-
-
-// const handleChat = () => {
-//     let userMessage = chatInput.value.trim();
-
-//     // Verificação da seleção de opção principal
-//     if (!isNaN(parseInt(userMessage, 10)) && options[userMessage] && !awaitingInput) {
-//         // Tratamento para uma opção válida somente quando não está aguardando um dado específico
-//         chatBox.appendChild(createChatLi(userMessage, "outgoing"));
-//         chatInput.value = '';
-//         selectedOption = userMessage;
-    
-//         switch (selectedOption) {
-//             case '1':
-//                 awaitingNameUser = true; // Ativa a flag para esperar o nome
-//                 awaitingInput = true; // Indica que o chatbot está aguardando uma entrada específica
-//                 chatBox.appendChild(createChatLi("Para justificar sua falta, por favor, informe seu nome completo.", "incoming"));
-
-//                 selectedOption = userMessage;
-//                 const selectedOptionTextOne = options[selectedOption];
-//                 selectedInitialOption = selectedOptionTextOne;
-//                 break;
-//             case '2':
-//                 awaitingNameUser = true;
-//                 awaitingInput = true;
-//                 chatBox.appendChild(createChatLi("Para solicitar horas extras, informe seu nome completo.", "incoming"));
-
-//                 selectedOption = userMessage;
-//                 const selectedOptionTextTwo = options[selectedOption];
-//                 selectedInitialOption = selectedOptionTextTwo;
-//                 break;
-
-//             case '3':
-//                 awaitingNameUser = true;
-//                 awaitingInput = true;
-//                 chatBox.appendChild(createChatLi("Para solicitar férias, informe seu nome completo.", "incoming"));
-
-//                 selectedOption = userMessage;
-//                 const selectedOptionTextThree = options[selectedOption];
-//                 selectedInitialOption = selectedOptionTextThree;
-//                 break;
-
-//             case '4':
-//                 awaitingNameUser = true;
-//                 awaitingInput = true;
-//                 chatBox.appendChild(createChatLi("Para solicitar desligamento, informe seu nome completo.", "incoming"));
-
-//                 selectedOption = userMessage;
-//                 const selectedOptionTextFour = options[selectedOption];
-//                 selectedInitialOption = selectedOptionTextFour;
-//                 break;
-
-//             case '5':
-//                 awaitingNameUser = true;
-//                 awaitingInput = true;
-//                 chatBox.appendChild(createChatLi("Para solicitar benefícios, informe seu nome completo.", "incoming"));
-
-//                 selectedOption = userMessage;
-//                 const selectedOptionTextFive = options[selectedOption];
-//                 selectedInitialOption = selectedOptionTextFive;
-//                 break;
-
-//             case '6':
-//                 awaitingNameUser = true;
-//                 awaitingInput = true;
-//                 chatBox.appendChild(createChatLi("Para realizar a solicitação de documento, informe seu nome completo.", "incoming"));
-
-//                 selectedOption = userMessage;
-//                 const selectedOptionTextSix = options[selectedOption];
-//                 selectedInitialOption = selectedOptionTextSix;
-//                 break;
-//             // Continue para as demais opções
-//         }
-//     } else if (awaitingNameUser) {
-//         const userNameData = userMessage.trim();
-//         const firstName = userNameData.split(" ")[0];
-        
-//         if (userNameData === "") {
-//             chatBox.appendChild(createChatLi("O nome não pode estar vazio. Por favor, informe seu nome completo.", "incoming", true));
-//         } else {
-//             chatBox.appendChild(createChatLi(userNameData, "outgoing"));
-//             userName = userMessage.trim();
-//             chatBox.appendChild(createChatLi(`Olá, ${firstName}! Por favor, informe seu CPF.`, "incoming"));
-//             chatInput.value = '';
-
-//             awaitingNameUser = false; // Reseta a flag de nome
-//             awaitingCpfUser = true; // Ativa a flag de CPF
-//             awaitingInput = true; // Mantém a flag ativa até que o CPF seja preenchido
-//         }
-//     } else if (awaitingCpfUser) {
-//         const cpfFormat = /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/;
-//         const userCpfData = userMessage;
-
-//         if(userCpfData === '') {
-//             chatBox.appendChild(createChatLi("O CPF não pode ficar em branco. Por favor, informe seu CPF para continuarmos", "incoming", true));
-//         } else {
-//             if (cpfFormat.test(userMessage)) {
-//                 chatBox.appendChild(createChatLi(formatCpf(userCpfData), "outgoing"));
-//                 userCpf = userMessage.trim();
-//                 chatBox.appendChild(createChatLi(`Obrigado! Agora, por favor, informe seu e-mail.`, "incoming"));
-//                 chatInput.value = '';
-//                 awaitingCpfUser = false; // Reseta a flag de CPF
-//                 awaitingEmailUser = true; // Ativa a flag de e-mail
-//             } else {
-//                 chatBox.appendChild(createChatLi(formatCpf(userCpf), "outgoing"));
-//                 chatBox.appendChild(createChatLi("CPF inválido. Por favor, insira um CPF válido.", "incoming", true));
-//                 chatInput.value = '';
-//             }
-//         }
-
-//     } else if (awaitingEmailUser) {
-//         const emailFormat = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-//         const userEmailData = userMessage.trim();
-
-//         if (userMessage.trim() === '') {
-//             chatBox.appendChild(createChatLi("O e-mail não pode estar vazio. Por favor, informe seu e-mail", "incoming", true));
-//         } else {
-//             if (emailFormat.test(userMessage)) {
-//                 chatBox.appendChild(createChatLi(userEmailData, "outgoing"));
-//                 userEmail = userMessage.trim();
-//                 chatInput.value = '';
-//                 awaitingEmailUser = false; // Reseta a flag de e-mail
-//                 awaitingInput = false; // Libera a entrada de novas opções de menu
-
-//                 chatBox.appendChild(createChatLi(`Obrigado. Por favor, Informe o seu cargo.`, "incoming"));
-
-//                 formProfission.style.display = 'block';
-//                 chatBox.appendChild(formProfission);
-//             } else {
-//                 chatBox.appendChild(createChatLi(userEmail, "outgoing"));
-//                 chatBox.appendChild(createChatLi("E-mail inválido. Por favor, insira um e-mail válido.", "incoming", true));
-//                 chatInput.value = '';
-//             }
-//         }
-        
-//     } else if (awaitingProfission) {
-//         const reason = userMessage.trim();
-
-//         if(reason === '') {
-//             chatBox.appendChild(createChatLi("O motivo não pode estar vazio. Por favor, informe o motivo da falta.", "incoming", true));
-//         } else {
-//             chatBox.appendChild(createChatLi(reason, "outgoing"));
-//             detailsRequest = userMessage.trim();
-//             chatBox.appendChild(createChatLi(`Obrigado. Por favor, insira a data da falta.`, "incoming"));
-//             chatInput.value = '';
-//             formDate.style.display = 'block';
-//             chatBox.appendChild(formDate);
-//         }
-        
-//     }
-
-//      else {
-//         chatBox.appendChild(createChatLi(userMessage, "outgoing"));
-//         chatBox.appendChild(createChatLi("Opção inválida. Por favor, escolha uma opção válida entre 1 e 5.", "incoming", true));
-//         chatInput.value = '';
-//         handleMessageInit(options);
-//     }
-// };
-
 
 function handleMessageInit(options) {
     const values = Object.keys(options);
