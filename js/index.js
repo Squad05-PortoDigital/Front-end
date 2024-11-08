@@ -173,6 +173,10 @@ function handleGroupBtnsStatus() {
                 chatBox.appendChild(createChatLi("Para prosseguir, você quer incluir algum arquivo com essa solicitação?", "incoming"));
             }
 
+            if(selectedOption === '4') {
+                chatBox.appendChild(createChatLi("Há algum documento que você gostaria de anexar?", "incoming"));
+            }
+
             buttonGroupArchive.style.display = 'block';
             chatBox.appendChild(buttonGroupArchive);
             handleArchive();
@@ -221,7 +225,7 @@ async function sendUserDataProcessos(funcionarioId) {
     const userData = {
         descricao: detailsRequest,
         tipo_processo: selectedInitialOption,
-        data_solicitacao: selectedOption === '1' ? formatarDataParaBR(userDate) : getDateCurrentWithFormatting(),
+        data_solicitacao: selectedOption === '2' ? getDateCurrentWithFormatting() : formatarDataParaBR(userDate),
         urgencia: nivelStatusRequested,
         id_destinatario: funcionarioId || null,
         id_funcionario: funcionarioId || null,
@@ -363,6 +367,10 @@ function handleArchive() {
                 chatBox.appendChild(createChatLi("Por favor, selecione o arquivo que deseja anexar à sua solicitação.", "incoming"));
                 formUpload.style.display = 'block';
                 chatBox.appendChild(formUpload);
+            } else if (buttonText === 'Sim' && selectedOption === '4') {
+                chatBox.appendChild(createChatLi("Por favor, selecione o arquivo que deseja anexar à sua solicitação.", "incoming"));
+                formUpload.style.display = 'block';
+                chatBox.appendChild(formUpload);
             }
             
             else {
@@ -458,6 +466,8 @@ function handleBtnProfission() {
             chatBox.appendChild(createChatLi("Obrigado. Por favor, descreva o motivo da sua solicitação.", "incoming"));
         }  else if(selectedOption === '3') {
             chatBox.appendChild(createChatLi("Obrigado. Por favor, descreva o motivo da sua solicitação.", "incoming"));
+        } else if(selectedOption === '4') {
+            chatBox.appendChild(createChatLi("Obrigado. Por favor, nos informe o motivo do seu desligamento.", "incoming"));
         }
 
         handleBtnProfission();
@@ -601,6 +611,13 @@ const startVacationRequestFlow = () => {
     awaitingNameUser = true;
     awaitingInput = true;
     chatBox.appendChild(createChatLi("Para solicitar férias, por favor, informe seu nome completo.", "incoming"));
+    selectedInitialOption = options[selectedOption];
+};
+
+const startTerminationFlow = () => {
+    awaitingNameUser = true;
+    awaitingInput = true;
+    chatBox.appendChild(createChatLi("Para solicitar seu desligamento, por favor, informe seu nome completo.", "incoming"));
     selectedInitialOption = options[selectedOption];
 };
 
@@ -748,6 +765,19 @@ const handleProfessionInput = (userMessage) => {
                 }
             }, { once: true });
 
+        }
+    }
+
+    if(selectedOption === '4') {
+        if(reason === '') {
+            chatBox.appendChild(createChatLi("O motivo não pode estar vazio. Por favor, informe o motivo da sua solicitação.", "incoming", true));
+        } else {
+            chatBox.appendChild(createChatLi(reason, "outgoing"));
+            detailsRequest = userMessage.trim();
+            chatBox.appendChild(createChatLi(`Por favor, informe a data em que gostaria que seu desligamento fosse efetivado.`, "incoming"));
+            chatInput.value = '';
+            formDate.style.display = 'block';
+            chatBox.appendChild(formDate);
         }
     }
     
