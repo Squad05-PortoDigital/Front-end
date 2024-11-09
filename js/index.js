@@ -16,6 +16,9 @@ const btnSendProfission = document.querySelector("#btn-send-profission");
 const formBeneficios = document.getElementById("formBeneficios");
 const btnSendBeneficios = document.querySelector("#btn-send-beneficios");
 
+const formDocumentos = document.getElementById("formDocumentos");
+const btnSendDocumentos = document.querySelector("#btn-send-documentos");
+
 const btnHourRequested = document.querySelector("#btn-send-hourRequested");
 const btnDateInsert = document.querySelector("#btn-send-dateInsert");
 
@@ -50,6 +53,8 @@ let dateRequestedHolidayEnd = "";
 let selectedOption = "";
 let selectedChoice = "";
 
+let documentSelected = "";
+
 const getDateCurrent = () => {
   const today = new Date();
   const year = today.getFullYear();
@@ -81,6 +86,7 @@ function UserDatas() {
     dateHolidayEnd: dateRequestedHolidayEnd,
     hourExtra: dateRequestedHolidayEnd,
     beneficio: selectedOption === "5" ? beneficioSelected : null,
+    documento: selectedOption === "6" ? documentSelected : null,
   };
 
   console.log(`Nome: ${userData.name}`);
@@ -94,6 +100,7 @@ function UserDatas() {
   console.log(`Data de férias fim: ${userData.dateHolidayEnd}`);
   console.log(`Horas Requisitadas: ${userData.hour}`);
   console.log(`Beneficio: ${userData.beneficio}`);
+  console.log(`Documento: ${userData.documento}`);
 }
 
 function preventButton() {
@@ -216,6 +223,15 @@ function handleGroupBtnsStatus() {
         );
       }
 
+      if (selectedOption === "6") {
+        chatBox.appendChild(
+          createChatLi(
+            "Deseja enviar um documento adicional para complementar sua solicitação?",
+            "incoming"
+          )
+        );
+      }
+
       buttonGroupArchive.style.display = "block";
       chatBox.appendChild(buttonGroupArchive);
       handleArchive();
@@ -247,7 +263,11 @@ async function cadastrarFuncionario() {
       const funcionario_id = funcionario.id_funcionario;
       await sendUserDataProcessos(funcionario_id);
     } else {
-      console.error("Erro ao cadastrar funcionário:", response.status, response.statusText);
+      console.error(
+        "Erro ao cadastrar funcionário:",
+        response.status,
+        response.statusText
+      );
     }
   } catch (e) {
     console.log("Erro ao enviar os dados", e);
@@ -295,7 +315,11 @@ async function sendUserDataProcessos(funcionarioId) {
         button.disabled = true;
       };
     } else {
-      console.error("Erro ao registrar o processo:", response.status, response.statusText);
+      console.error(
+        "Erro ao registrar o processo:",
+        response.status,
+        response.statusText
+      );
       button.textContent = "Erro! Tente novamente";
     }
   } catch (e) {
@@ -303,7 +327,6 @@ async function sendUserDataProcessos(funcionarioId) {
     button.textContent = "Erro! Tente novamente";
   }
 }
-
 
 async function generatePdf(id_ocorrencia) {
   const { jsPDF } = window.jspdf;
@@ -436,7 +459,17 @@ function handleArchive() {
         );
         formUpload.style.display = "block";
         chatBox.appendChild(formUpload);
-      } else {
+      } else if (buttonText === "Sim" && selectedOption === "6") {
+        chatBox.appendChild(
+          createChatLi(
+            "Por favor, selecione o arquivo que deseja anexar à sua solicitação.",
+            "incoming"
+          )
+        );
+        formUpload.style.display = "block";
+        chatBox.appendChild(formUpload);
+      }
+       else {
         chatBox.appendChild(
           createChatLi(
             "Sua solicitação foi recebida. Acompanhe seu e-mail para mais detalhes.",
@@ -572,6 +605,13 @@ function handleBtnProfission() {
           "incoming"
         )
       );
+    } else if (selectedOption === "6") {
+      chatBox.appendChild(
+        createChatLi(
+          "Obrigado. Por favor, nos informe o motivo da solicitação de documento.",
+          "incoming"
+        )
+      );
     }
 
     awaitingProfission = true;
@@ -614,10 +654,47 @@ function handleBeneficios() {
   });
 }
 
+btnSendDocumentos.disabled = true;
+
+const selectDocumentos = document.querySelector("#documentos");
+
+selectDocumentos.addEventListener("change", () => {
+  if (selectDocumentos.selectedIndex > 0) {
+    btnSendDocumentos.disabled = false;
+    documentSelected =
+      selectDocumentos.options[selectDocumentos.selectedIndex].text;
+  } else {
+    btnSendDocumentos.disabled = true;
+  }
+});
+
+function handleDocumentos() {
+  btnSendDocumentos.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    btnSendDocumentos.disabled = true;
+
+    const DocumentoSelected =
+      selectDocumentos.options[selectDocumentos.selectedIndex].text;
+
+    chatBox.appendChild(createChatLi(DocumentoSelected, "outgoing"));
+
+    chatBox.appendChild(
+      createChatLi(
+        "Obrigado. Qual é o nível de urgência da sua solicitação?",
+        "incoming"
+      )
+    );
+    btnGroupUrgency.style.display = "block";
+    chatBox.appendChild(btnGroupUrgency);
+  });
+}
+
 handleBtnHour();
 handleBtnDate();
 handleBtnProfission();
 handleBeneficios();
+handleDocumentos();
 
 let awaitingEmail = false;
 let awaitingDetailsRequest = false;
@@ -802,7 +879,17 @@ const startBenefitsFlow = () => {
   selectedInitialOption = options[selectedOption];
 };
 
-// Continue com as funções `startVacationRequestFlow`, `startTerminationFlow`, `startBenefitsFlow`, `startDocumentRequestFlow` e outras opções se necessário
+const startDocumentRequestFlow = () => {
+  awaitingNameUser = true;
+  awaitingInput = true;
+  chatBox.appendChild(
+    createChatLi(
+      "Para solicitar documentos, por favor, informe seu nome completo.",
+      "incoming"
+    )
+  );
+  selectedInitialOption = options[selectedOption];
+};
 
 const handleNameInput = (userMessage) => {
   const userNameData = userMessage.trim();
@@ -988,7 +1075,6 @@ const handleProfessionInput = (userMessage) => {
             );
             dateRequestedHolidayFirst = startDate.trim();
 
-            // Solicita a data de término das férias
             chatBox.appendChild(
               createChatLi(
                 "Agora, informe a data final das férias.",
@@ -997,14 +1083,13 @@ const handleProfessionInput = (userMessage) => {
             );
             formDateInit.style.display = "none";
 
-
             formDateEnd.style.display = "block";
             chatBox.appendChild(formDateEnd);
 
             formDateEnd.addEventListener(
               "change",
               (event) => {
-                const endDate = event.target.value; 
+                const endDate = event.target.value;
                 if (endDate) {
                   chatBox.appendChild(
                     createChatLi(
@@ -1084,6 +1169,31 @@ const handleProfessionInput = (userMessage) => {
       chatInput.value = "";
     }
   }
+
+  if (selectedOption === "6") {
+    if (reason === "") {
+      chatBox.appendChild(
+        createChatLi(
+          "O motivo não pode estar vazio. Por favor, informe o motivo da sua solicitação.",
+          "incoming",
+          true
+        )
+      );
+    } else {
+      chatBox.appendChild(createChatLi(reason, "outgoing"));
+      detailsRequest = userMessage.trim();
+
+      chatBox.appendChild(
+        createChatLi(
+          `Por favor, Informe o documento que você deseja.`,
+          "incoming"
+        )
+      );
+      formDocumentos.style.display = "block";
+      chatBox.appendChild(formDocumentos);
+      chatInput.value = "";
+    }
+  }
 };
 
 function handleMessageInit(options) {
@@ -1093,9 +1203,7 @@ function handleMessageInit(options) {
   });
 }
 
-setTimeout(() => {
-  handleMessageInit(options);
-}, 2000);
+handleMessageInit(options);
 
 const handleEnter = () => {
   document.addEventListener("keydown", (event) => {

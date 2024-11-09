@@ -111,6 +111,23 @@
               <button type="submit" id="btn-send-beneficios" class="btn btn-primary mt-3">Enviar</button>
           </form>
 
+          <!-- FORM DOCUMENTOS -->
+          <form action="/submit" method="POST" id="formDocumentos" class="py-2" style="display: none;">
+            <select id="documentos" class="form-select">
+              <option value="">Selecione uma opção</option>
+              <option value="holerite">Holerite</option>
+              <option value="contrato">Contrato de Trabalho</option>
+              <option value="cartao_ponto">Cartão de Ponto</option>
+              <option value="declaracao_emprego">Declaração de Emprego</option>
+              <option value="ficha_registro">Ficha de Registro</option>
+              <option value="exame_admissional">Exame Admissional</option>
+              <option value="exame_demissional">Exame Demissional</option>
+              <option value="ferias">Documento de Férias</option>
+            </select>
+            <button type="submit" id="btn-send-documentos" class="btn btn-primary mt-3">Enviar</button>
+        </form>
+          
+
             <!-- Group Button Nivel Urgency -->
             <div class="mb-4 py-2" style="display: none;" id="btns-groupUrgency">
                 <button class="btn btn-info" id="btnUrgency">Baixa</button>
