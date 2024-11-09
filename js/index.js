@@ -50,7 +50,7 @@ let dateRequestedHolidayEnd = "";
 let selectedOption = "";
 let selectedChoice = "";
 
-const getDateCurrentWithFormatting = () => {
+const getDateCurrent = () => {
   const today = new Date();
   const year = today.getFullYear();
   const month = String(today.getMonth() + 1).padStart(2, "0");
@@ -59,11 +59,6 @@ const getDateCurrentWithFormatting = () => {
   return `${year}-${month}-${day}`;
 };
 
-function formatarDataParaBR(dataAmericana) {
-  const [ano, mes, dia] = dataAmericana.split("-");
-  return `${dia}-${mes}-${ano}`;
-}
-
 function UserDatas() {
   const userData = {
     name: userName,
@@ -71,14 +66,14 @@ function UserDatas() {
     email: userEmail,
     descricao: detailsRequest,
     tipo_processo: selectedInitialOption || "",
-    data_solicitacao: getDateCurrentWithFormatting(),
-    data_ocorrido: formatarDataParaBR(userDate) || null,
+    data_solicitacao: getDateCurrent(),
+    data_ocorrido: userDate || null,
     urgencia: nivelStatusRequested || "",
     id_destinatario: funcionarioId || null,
     id_funcionario: funcionarioId || null,
     hour: hourRequested,
-    dateHolidayFirst: formatarDataParaBR(dateRequestedHolidayFirst),
-    dateHolidayEnd: formatarDataParaBR(dateRequestedHolidayEnd),
+    dateHolidayFirst: dateRequestedHolidayFirst,
+    dateHolidayEnd: dateRequestedHolidayEnd,
     hourExtra: dateRequestedHolidayEnd,
     beneficio: selectedOption === "5" ? beneficioSelected : null,
   };
@@ -262,7 +257,7 @@ async function sendUserDataProcessos(funcionarioId) {
   const userData = {
     descricao: detailsRequest,
     tipo_processo: selectedInitialOption,
-    data_solicitacao: getDateCurrentWithFormatting(),
+    data_solicitacao: getDateCurrent(),
     data_ocorrencia: selectedOption === "2" ? null : userDate,
     hora_extra: hourRequested || null,
     inicio_ferias: selectedOption === "3" ? dateRequestedHolidayFirst: null,
@@ -398,7 +393,7 @@ function handleArchive() {
 
       if (buttonText === "Sim" && selectedOption === "1") {
         chatBox.appendChild(
-          createChatLi("Por favor, anexe o atestado.", "incoming")
+          createChatLi("Por favor, anexe o arquivo desejado.", "incoming")
         );
         formUpload.style.display = "block";
         chatBox.appendChild(formUpload);
