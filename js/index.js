@@ -59,6 +59,11 @@ const getDateCurrent = () => {
   return `${year}-${month}-${day}`;
 };
 
+function formatarDataParaBR(dataAmericana) {
+  const [ano, mes, dia] = dataAmericana.split("-");
+  return `${dia}-${mes}-${ano}`;
+}
+
 function UserDatas() {
   const userData = {
     name: userName,
@@ -242,7 +247,7 @@ async function cadastrarFuncionario() {
       const funcionario_id = funcionario.id_funcionario;
       await sendUserDataProcessos(funcionario_id);
     } else {
-      console.error("Erro ao cadastrar funcionário");
+      console.error("Erro ao cadastrar funcionário:", response.status, response.statusText);
     }
   } catch (e) {
     console.log("Erro ao enviar os dados", e);
@@ -260,8 +265,8 @@ async function sendUserDataProcessos(funcionarioId) {
     data_solicitacao: getDateCurrent(),
     data_ocorrencia: selectedOption === "2" ? null : userDate,
     hora_extra: hourRequested || null,
-    inicio_ferias: selectedOption === "3" ? dateRequestedHolidayFirst: null,
-    fim_ferias: selectedOption === "3" ? dateRequestedHolidayEnd: null,
+    inicio_ferias: selectedOption === "3" ? dateRequestedHolidayFirst : null,
+    fim_ferias: selectedOption === "3" ? dateRequestedHolidayEnd : null,
     urgencia: nivelStatusRequested,
     id_destinatario: funcionarioId || null,
     id_funcionario: funcionarioId || null,
@@ -285,12 +290,12 @@ async function sendUserDataProcessos(funcionarioId) {
       button.textContent = "Gerar Comprovante";
       button.disabled = false;
 
-      button.addEventListener("click", async function () {
+      button.onclick = async function () {
         await generatePdf(processo_ocorrencia);
         button.disabled = true;
-      });
+      };
     } else {
-      console.error("Erro ao registrar o processo");
+      console.error("Erro ao registrar o processo:", response.status, response.statusText);
       button.textContent = "Erro! Tente novamente";
     }
   } catch (e) {
@@ -298,6 +303,7 @@ async function sendUserDataProcessos(funcionarioId) {
     button.textContent = "Erro! Tente novamente";
   }
 }
+
 
 async function generatePdf(id_ocorrencia) {
   const { jsPDF } = window.jspdf;
