@@ -291,6 +291,7 @@ async function sendUserDataProcessos(funcionarioId) {
     id_destinatario: funcionarioId || null,
     id_funcionario: funcionarioId || null,
     beneficio: selectedOption === "5" ? beneficioSelected : null,
+    nome_documento: selectedOption === "6" ? documentSelected : null
   };
 
   try {
