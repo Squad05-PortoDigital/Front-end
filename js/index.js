@@ -1015,48 +1015,6 @@ const handleCpfInput = async (userMessage) => {
   }
 };
 
-
-
-
-// const handleCpfInput = (userMessage) => {
-//   const cpfFormat = /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/;
-//   const userCpfData = userMessage.trim();
-
-//   if (userCpfData === "") {
-//     chatBox.appendChild(
-//       createChatLi(
-//         "O CPF não pode ficar em branco. Por favor, informe seu CPF para continuarmos",
-//         "incoming",
-//         true
-//       )
-//     );
-//   } else {
-//     if (cpfFormat.test(userMessage)) {
-//       chatBox.appendChild(createChatLi(formatCpf(userCpfData), "outgoing"));
-//       userCpf = userCpfData;
-//       chatBox.appendChild(
-//         createChatLi(
-//           `Obrigado! Agora, por favor, informe seu e-mail.`,
-//           "incoming"
-//         )
-//       );
-//       chatInput.value = "";
-//       awaitingCpfUser = false;
-//       awaitingEmailUser = true;
-//     } else {
-//       chatBox.appendChild(createChatLi(formatCpf(userCpfData), "outgoing"));
-//       chatBox.appendChild(
-//         createChatLi(
-//           "CPF inválido. Por favor, insira um CPF válido.",
-//           "incoming",
-//           true
-//         )
-//       );
-//       chatInput.value = "";
-//     }
-//   }
-// };
-
 const handleEmailInput = (userMessage) => {
   const emailFormat = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   const userEmailData = userMessage.trim();
