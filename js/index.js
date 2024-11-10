@@ -69,6 +69,28 @@ function formatarDataParaBR(dataAmericana) {
   return `${dia}-${mes}-${ano}`;
 }
 
+async function verificarCpf(cpf) {
+  try {
+      const response = await fetch(`http://localhost:8080/buscarcpf/${cpf}`);
+      
+      if (response.ok) {
+          // CPF já está cadastrado
+          const data = await response.json();
+          if (data.exists) { // ou ajustado conforme a resposta da sua API
+              return false;
+          }
+      }
+      
+      // CPF não cadastrado
+      return true;
+  } catch (error) {
+      console.error("Erro ao verificar CPF:", error);
+      alert("Erro ao verificar CPF. Tente novamente.");
+      return false;
+  }
+}
+
+
 function UserDatas() {
   const userData = {
     name: userName,
@@ -916,7 +938,7 @@ const handleNameInput = (userMessage) => {
   }
 };
 
-const handleCpfInput = (userMessage) => {
+const handleCpfInput = async (userMessage) => {
   const cpfFormat = /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/;
   const userCpfData = userMessage.trim();
 
@@ -928,24 +950,62 @@ const handleCpfInput = (userMessage) => {
         true
       )
     );
+    chatInput.value = "";
   } else {
-    if (cpfFormat.test(userMessage)) {
-      chatBox.appendChild(createChatLi(formatCpf(userCpfData), "outgoing"));
-      userCpf = userCpfData;
-      chatBox.appendChild(
-        createChatLi(
-          `Obrigado! Agora, por favor, informe seu e-mail.`,
-          "incoming"
-        )
-      );
-      chatInput.value = "";
-      awaitingCpfUser = false;
-      awaitingEmailUser = true;
+    if (cpfFormat.test(userCpfData)) {
+      try {
+        const response = await fetch(`http://localhost:8080/funcionarios/buscarcpf/${userCpfData}`);
+        
+        if (response.ok) {
+          chatBox.appendChild(
+            createChatLi(
+              "O CPF fornecido já está associado a um registro existente. Tente novamente com outro CPF.",
+              "incoming",
+              true
+            )
+          );
+          chatInput.value = "";
+          return;
+        } else if (response.status === 404) {
+          // CPF não cadastrado
+          chatBox.appendChild(createChatLi(formatCpf(userCpfData), "outgoing"));
+          userCpf = userCpfData;
+          chatBox.appendChild(
+            createChatLi(
+              "Obrigado! Agora, por favor, informe seu e-mail.",
+              "incoming"
+            )
+          );
+          chatInput.value = "";
+          awaitingCpfUser = false;
+          awaitingEmailUser = true;
+        } else {
+          // Status inesperado
+          chatBox.appendChild(
+            createChatLi(
+              "O CPF fornecido já está associado a um registro existente. Tente novamente com outro CPF.",
+              "incoming",
+              true
+            )
+          );
+          chatInput.value = "";
+        }
+      } catch (error) {
+        console.error("Erro ao verificar CPF:", error);
+        chatBox.appendChild(
+          createChatLi(
+            "O CPF fornecido já está associado a um registro existente. Tente novamente com outro CPF.",
+            "incoming",
+            true
+          )
+        );
+        chatInput.value = "";
+      }
     } else {
       chatBox.appendChild(createChatLi(formatCpf(userCpfData), "outgoing"));
       chatBox.appendChild(
         createChatLi(
-          "CPF inválido. Por favor, insira um CPF válido.",
+          "O CPF fornecido já está associado a um registro existente. Tente novamente com outro CPF.",
           "incoming",
           true
         )
@@ -954,6 +1014,48 @@ const handleCpfInput = (userMessage) => {
     }
   }
 };
+
+
+
+
+// const handleCpfInput = (userMessage) => {
+//   const cpfFormat = /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/;
+//   const userCpfData = userMessage.trim();
+
+//   if (userCpfData === "") {
+//     chatBox.appendChild(
+//       createChatLi(
+//         "O CPF não pode ficar em branco. Por favor, informe seu CPF para continuarmos",
+//         "incoming",
+//         true
+//       )
+//     );
+//   } else {
+//     if (cpfFormat.test(userMessage)) {
+//       chatBox.appendChild(createChatLi(formatCpf(userCpfData), "outgoing"));
+//       userCpf = userCpfData;
+//       chatBox.appendChild(
+//         createChatLi(
+//           `Obrigado! Agora, por favor, informe seu e-mail.`,
+//           "incoming"
+//         )
+//       );
+//       chatInput.value = "";
+//       awaitingCpfUser = false;
+//       awaitingEmailUser = true;
+//     } else {
+//       chatBox.appendChild(createChatLi(formatCpf(userCpfData), "outgoing"));
+//       chatBox.appendChild(
+//         createChatLi(
+//           "CPF inválido. Por favor, insira um CPF válido.",
+//           "incoming",
+//           true
+//         )
+//       );
+//       chatInput.value = "";
+//     }
+//   }
+// };
 
 const handleEmailInput = (userMessage) => {
   const emailFormat = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
