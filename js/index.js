@@ -666,12 +666,21 @@ function handleBeneficios() {
 
     chatBox.appendChild(
       createChatLi(
-        "Obrigado. Qual é o nível de urgência da sua solicitação?",
+        "Para que dia você desejar receber o seu benefício?",
         "incoming"
       )
     );
-    btnGroupUrgency.style.display = "block";
-    chatBox.appendChild(btnGroupUrgency);
+    formDate.style.display = "block";
+    chatBox.appendChild(formDate);
+
+    // chatBox.appendChild(
+    //   createChatLi(
+    //     "Obrigado. Qual é o nível de urgência da sua solicitação?",
+    //     "incoming"
+    //   )
+    // );
+    // btnGroupUrgency.style.display = "block";
+    // chatBox.appendChild(btnGroupUrgency);
   });
 }
 
