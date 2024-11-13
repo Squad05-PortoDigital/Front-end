@@ -672,15 +672,6 @@ function handleBeneficios() {
     );
     formDate.style.display = "block";
     chatBox.appendChild(formDate);
-
-    // chatBox.appendChild(
-    //   createChatLi(
-    //     "Obrigado. Qual é o nível de urgência da sua solicitação?",
-    //     "incoming"
-    //   )
-    // );
-    // btnGroupUrgency.style.display = "block";
-    // chatBox.appendChild(btnGroupUrgency);
   });
 }
 
@@ -711,12 +702,12 @@ function handleDocumentos() {
 
     chatBox.appendChild(
       createChatLi(
-        "Obrigado. Qual é o nível de urgência da sua solicitação?",
+        "Insira o dia que você deseja receber o seu documento.",
         "incoming"
       )
     );
-    btnGroupUrgency.style.display = "block";
-    chatBox.appendChild(btnGroupUrgency);
+    formDate.style.display = "block";
+    chatBox.appendChild(formDate);
   });
 }
 
