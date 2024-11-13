@@ -41,6 +41,7 @@ let beneficioSelected = "";
 let detailsRequest = "";
 let selectedInitialOption = "";
 let userDate = "";
+let userDateToOcorrencia = "";
 let nivelUrgencyRequest = "";
 let nivelStatusRequested = "";
 let hoursRequested = "";
@@ -74,9 +75,8 @@ async function verificarCpf(cpf) {
       const response = await fetch(`http://localhost:8080/buscarcpf/${cpf}`);
       
       if (response.ok) {
-          // CPF já está cadastrado
           const data = await response.json();
-          if (data.exists) { // ou ajustado conforme a resposta da sua API
+          if (data.exists) {
               return false;
           }
       }
@@ -99,7 +99,7 @@ function UserDatas() {
     descricao: detailsRequest,
     tipo_processo: selectedInitialOption || "",
     data_solicitacao: getDateCurrent(),
-    data_ocorrido: userDate || null,
+    data_ocorrido: userDateToOcorrencia || null,
     urgencia: nivelStatusRequested || "",
     id_destinatario: funcionarioId || null,
     id_funcionario: funcionarioId || null,
@@ -113,7 +113,7 @@ function UserDatas() {
 
   console.log(`Nome: ${userData.name}`);
   console.log(`Data da solicitação: ${userData.data_solicitacao}`);
-  console.log(`Data para Ocorrência: ${userData.data_solicitacao}`);
+  console.log(`Data para Ocorrência: ${userData.data_ocorrido}`);
   console.log(`CPF: ${userData.cpf}`);
   console.log(`Descrição: ${userData.descricao}`);
   console.log(`Tipo de processo: ${userData.tipo_processo}`);
@@ -305,7 +305,7 @@ async function sendUserDataProcessos(funcionarioId) {
     descricao: detailsRequest,
     tipo_processo: selectedInitialOption,
     data_solicitacao: getDateCurrent(),
-    data_ocorrencia: selectedOption === "2" ? null : userDate,
+    data_ocorrencia: userDateToOcorrencia || null,
     hora_extra: hourRequested || null,
     inicio_ferias: selectedOption === "3" ? dateRequestedHolidayFirst : null,
     fim_ferias: selectedOption === "3" ? dateRequestedHolidayEnd : null,
@@ -519,6 +519,7 @@ handleGroupBtnsStatus();
 
 function handleBtnHour() {
   const hourInput = document.querySelector("#hour");
+  const dateInput = document.querySelector('#date');
   const btnHourRequested = document.querySelector("#btn-send-hourRequested");
 
   btnHourRequested.disabled = true;
@@ -530,6 +531,7 @@ function handleBtnHour() {
   btnHourRequested.addEventListener("click", (e) => {
     e.preventDefault();
     const hourInputValue = hourInput.value.trim();
+    const dateInputValue = dateInput.value.trim();
     const [hour, minute] = hourInputValue.split(":");
 
     if (hour && minute) {
@@ -539,17 +541,12 @@ function handleBtnHour() {
       btnHourRequested.disabled = true;
 
       chatBox.appendChild(
-        createChatLi(
-          "Obrigado. Qual é o nível de urgência da sua solicitação?",
-          "incoming"
-        )
+        createChatLi(`Obrigado. Por favor, insira o dia que você deseja fazer a hora extra.`, "incoming")
       );
-      btnGroupUrgency.style.display = "block";
-      chatBox.appendChild(btnGroupUrgency);
-    } else {
-      chatBox.appendChild(
-        createChatLi("Por favor, insira um horário válido.", "incoming", true)
-      );
+      
+      chatInput.value = "";
+      formDate.style.display = "block";
+      chatBox.appendChild(formDate);
     }
   });
 }
@@ -568,6 +565,7 @@ function handleBtnDate() {
     e.preventDefault();
     const DateInsert = dateInput.value.trim();
     userDate = DateInsert;
+    userDateToOcorrencia = DateInsert;
 
     chatBox.appendChild(createChatLi(DateInsert, "outgoing"));
     btnDateInsert.disabled = true;
@@ -784,8 +782,8 @@ let awaitingNameUser = false;
 let awaitingCpfUser = false;
 let awaitingEmailUser = false;
 let awaitingProfission = false;
+let awaitingDateOcorridoHour = false;
 let awaitingInput = false;
-let awaitRequestedHour = false;
 let hourRequested = "";
 
 const handleChat = () => {
@@ -828,7 +826,8 @@ const handleChat = () => {
     handleEmailInput(userMessage);
   } else if (awaitingProfission) {
     handleProfessionInput(userMessage);
-  } else {
+  }
+   else {
     chatBox.appendChild(createChatLi(userMessage, "outgoing"));
     chatBox.appendChild(
       createChatLi(
@@ -1054,6 +1053,9 @@ const handleEmailInput = (userMessage) => {
   }
 };
 
+let awaitHours = false; // Variável para verificar se estamos esperando as horas
+let awaitDate = false; // Variável para verificar se estamos esperando a data
+
 const handleProfessionInput = (userMessage) => {
   const reason = userMessage.trim();
 
@@ -1079,23 +1081,26 @@ const handleProfessionInput = (userMessage) => {
   }
 
   if (selectedOption === "2") {
-    if (reason === "") {
-      chatBox.appendChild(
-        createChatLi(
-          "O motivo não pode estar vazio. Por favor, informe o motivo da sua solicitação.",
-          "incoming",
-          true
-        )
-      );
-    } else {
-      chatBox.appendChild(createChatLi(reason, "outgoing"));
-      detailsRequest = userMessage.trim();
-      chatBox.appendChild(
-        createChatLi(`Quantas horas extras você deseja solicitar?`, "incoming")
-      );
-      chatInput.value = "";
-      formHour.style.display = "block";
-      chatBox.appendChild(formHour);
+    if (selectedOption === "2") {
+      if (reason === "") {
+        chatBox.appendChild(
+          createChatLi(
+            "O motivo não pode estar vazio. Por favor, informe o motivo da sua solicitação.",
+            "incoming",
+            true
+          )
+        );
+      } else {
+        chatBox.appendChild(createChatLi(reason, "outgoing"));
+        detailsRequest = userMessage.trim();
+        chatBox.appendChild(
+          createChatLi(`Quantas horas extras você deseja solicitar?`, "incoming")
+        );
+        chatInput.value = "";
+        formHour.style.display = "block";
+        chatBox.appendChild(formHour);
+        
+    }
     }
   }
 
@@ -1262,8 +1267,8 @@ function handleMessageInit(options) {
   values.forEach((key) => {
     chatBox.appendChild(createChatLi(`${key}. ${options[key]}`, "incoming"));
   });
-}
 
+}
 handleMessageInit(options);
 
 const handleEnter = () => {
