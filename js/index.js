@@ -32,6 +32,7 @@ const buttonGroupArchive = document.getElementById("btns-groupArchive");
 const buttonArchive = document.querySelectorAll("#btnArchive");
 
 const formUpload = document.getElementById("uploadForm");
+const som = document.getElementById('chat-sound');
 
 let userName = "";
 let userCpf = "";
@@ -162,7 +163,7 @@ function preventButton() {
       chatBox.appendChild(
         createChatLi(
           "Sua solicitação foi recebida. Acompanhe seu e-mail para mais detalhes.",
-          "incoming"
+          "incoming", false, true
         )
       );
       submitButton.disabled = true;
@@ -204,7 +205,7 @@ function handleGroupBtnsStatus() {
         chatBox.appendChild(
           createChatLi(
             "Há algum documento que você gostaria de anexar?",
-            "incoming"
+            "incoming", false, true
           )
         );
       }
@@ -213,7 +214,7 @@ function handleGroupBtnsStatus() {
         chatBox.appendChild(
           createChatLi(
             "Você gostaria de anexar algum documento para justificar sua solicitação?",
-            "incoming"
+            "incoming", false, true
           )
         );
       }
@@ -222,7 +223,7 @@ function handleGroupBtnsStatus() {
         chatBox.appendChild(
           createChatLi(
             "Para prosseguir, você quer incluir algum arquivo com essa solicitação?",
-            "incoming"
+            "incoming", false, true
           )
         );
       }
@@ -231,7 +232,7 @@ function handleGroupBtnsStatus() {
         chatBox.appendChild(
           createChatLi(
             "Há algum documento que você gostaria de anexar?",
-            "incoming"
+            "incoming", false, true
           )
         );
       }
@@ -240,7 +241,7 @@ function handleGroupBtnsStatus() {
         chatBox.appendChild(
           createChatLi(
             "Deseja enviar um documento adicional para complementar sua solicitação?",
-            "incoming"
+            "incoming", false, true
           )
         );
       }
@@ -249,7 +250,7 @@ function handleGroupBtnsStatus() {
         chatBox.appendChild(
           createChatLi(
             "Deseja enviar um documento adicional para complementar sua solicitação?",
-            "incoming"
+            "incoming", false, true
           )
         );
       }
@@ -445,13 +446,13 @@ function handleArchive() {
 
       if (buttonText === "Sim" && selectedOption === "1") {
         chatBox.appendChild(
-          createChatLi("Por favor, anexe o arquivo desejado.", "incoming")
+          createChatLi("Por favor, anexe o arquivo desejado.", "incoming", false, true)
         );
         formUpload.style.display = "block";
         chatBox.appendChild(formUpload);
       } else if (buttonText === "Sim" && selectedOption === "2") {
         chatBox.appendChild(
-          createChatLi("Por favor, anexe o arquivo desejado.", "incoming")
+          createChatLi("Por favor, anexe o arquivo desejado.", "incoming", false, true)
         );
         formUpload.style.display = "block";
         chatBox.appendChild(formUpload);
@@ -459,7 +460,7 @@ function handleArchive() {
         chatBox.appendChild(
           createChatLi(
             "Por favor, selecione o arquivo que deseja anexar à sua solicitação.",
-            "incoming"
+            "incoming", false, true
           )
         );
         formUpload.style.display = "block";
@@ -468,7 +469,7 @@ function handleArchive() {
         chatBox.appendChild(
           createChatLi(
             "Por favor, selecione o arquivo que deseja anexar à sua solicitação.",
-            "incoming"
+            "incoming", false, true
           )
         );
         formUpload.style.display = "block";
@@ -477,7 +478,7 @@ function handleArchive() {
         chatBox.appendChild(
           createChatLi(
             "Por favor, selecione o arquivo que deseja anexar à sua solicitação.",
-            "incoming"
+            "incoming", false, true
           )
         );
         formUpload.style.display = "block";
@@ -486,7 +487,7 @@ function handleArchive() {
         chatBox.appendChild(
           createChatLi(
             "Por favor, selecione o arquivo que deseja anexar à sua solicitação.",
-            "incoming"
+            "incoming", false, true
           )
         );
         formUpload.style.display = "block";
@@ -496,7 +497,7 @@ function handleArchive() {
         chatBox.appendChild(
           createChatLi(
             "Sua solicitação foi recebida. Acompanhe seu e-mail para mais detalhes.",
-            "incoming"
+            "incoming", false, true
           )
         );
 
@@ -541,7 +542,7 @@ function handleBtnHour() {
       btnHourRequested.disabled = true;
 
       chatBox.appendChild(
-        createChatLi(`Obrigado. Por favor, insira o dia que você deseja fazer a hora extra.`, "incoming")
+        createChatLi(`Obrigado. Por favor, insira o dia que você deseja fazer a hora extra.`, "incoming", false, true)
       );
       
       chatInput.value = "";
@@ -573,7 +574,7 @@ function handleBtnDate() {
     chatBox.appendChild(
       createChatLi(
         "Obrigado. Qual é o nível de urgência da sua solicitação?",
-        "incoming"
+        "incoming", false, true
       )
     );
     btnGroupUrgency.style.display = "block";
@@ -595,42 +596,42 @@ function handleBtnProfission() {
       chatBox.appendChild(
         createChatLi(
           "Obrigado. Por favor, informe o motivo da falta.",
-          "incoming"
+          "incoming", false, true
         )
       );
     } else if (selectedOption === "2") {
       chatBox.appendChild(
         createChatLi(
           "Obrigado. Por favor, descreva o motivo da sua solicitação.",
-          "incoming"
+          "incoming", false, true
         )
       );
     } else if (selectedOption === "3") {
       chatBox.appendChild(
         createChatLi(
           "Obrigado. Por favor, descreva o motivo da sua solicitação.",
-          "incoming"
+          "incoming", false, true
         )
       );
     } else if (selectedOption === "4") {
       chatBox.appendChild(
         createChatLi(
           "Obrigado. Por favor, nos informe o motivo do seu desligamento.",
-          "incoming"
+          "incoming", false, true
         )
       );
     } else if (selectedOption === "5") {
       chatBox.appendChild(
         createChatLi(
           "Obrigado. Por favor, nos informe o motivo da solicitação de benefício.",
-          "incoming"
+          "incoming", false, true
         )
       );
     } else if (selectedOption === "6") {
       chatBox.appendChild(
         createChatLi(
           "Obrigado. Por favor, nos informe o motivo da solicitação de documento.",
-          "incoming"
+          "incoming", false, true
         )
       );
     }
@@ -667,7 +668,7 @@ function handleBeneficios() {
     chatBox.appendChild(
       createChatLi(
         "Para que dia você desejar receber o seu benefício?",
-        "incoming"
+        "incoming", false, true
       )
     );
     formDate.style.display = "block";
@@ -703,7 +704,7 @@ function handleDocumentos() {
     chatBox.appendChild(
       createChatLi(
         "Insira o dia que você deseja receber o seu documento.",
-        "incoming"
+        "incoming", false, true
       )
     );
     formDate.style.display = "block";
@@ -729,7 +730,7 @@ const options = {
   6: "Solicitação de documentos",
 };
 
-const createChatLi = (message, className, isError = false) => {
+const createChatLi = (message, className, isError = false, haveSound = false) => {
   const chatLi = document.createElement("li");
   chatLi.classList.add("chat", className);
   let chatContent =
@@ -745,6 +746,13 @@ const createChatLi = (message, className, isError = false) => {
   if (isError) {
     messageElement.classList.add("text-danger");
   }
+
+  if (haveSound) {
+    setTimeout(() => {
+      som.play();
+    }, 300);
+  }
+  
   return chatLi;
 };
 
@@ -833,7 +841,7 @@ const handleChat = () => {
       createChatLi(
         "Opção inválida. Por favor, escolha uma opção válida entre 1 e 5.",
         "incoming",
-        true
+        true, true
       )
     );
     chatInput.value = "";
@@ -847,7 +855,7 @@ const startJustificationFlow = () => {
   chatBox.appendChild(
     createChatLi(
       "Para justificar sua falta, por favor, informe seu nome completo.",
-      "incoming"
+      "incoming", false, true
     )
   );
   selectedInitialOption = options[selectedOption];
@@ -859,7 +867,7 @@ const startExtraHoursFlow = () => {
   chatBox.appendChild(
     createChatLi(
       "Para solicitar horas extras, por favor, informe seu nome completo.",
-      "incoming"
+      "incoming", false, true
     )
   );
   selectedInitialOption = options[selectedOption];
@@ -871,7 +879,7 @@ const startVacationRequestFlow = () => {
   chatBox.appendChild(
     createChatLi(
       "Para solicitar férias, por favor, informe seu nome completo.",
-      "incoming"
+      "incoming", false, true
     )
   );
   selectedInitialOption = options[selectedOption];
@@ -883,7 +891,7 @@ const startTerminationFlow = () => {
   chatBox.appendChild(
     createChatLi(
       "Para solicitar seu desligamento, por favor, informe seu nome completo.",
-      "incoming"
+      "incoming", false, true
     )
   );
   selectedInitialOption = options[selectedOption];
@@ -895,7 +903,7 @@ const startBenefitsFlow = () => {
   chatBox.appendChild(
     createChatLi(
       "Para solicitar benefícios, por favor, informe seu nome completo.",
-      "incoming"
+      "incoming", false, true
     )
   );
   selectedInitialOption = options[selectedOption];
@@ -907,7 +915,7 @@ const startDocumentRequestFlow = () => {
   chatBox.appendChild(
     createChatLi(
       "Para solicitar documentos, por favor, informe seu nome completo.",
-      "incoming"
+      "incoming", false, true
     )
   );
   selectedInitialOption = options[selectedOption];
@@ -922,14 +930,14 @@ const handleNameInput = (userMessage) => {
       createChatLi(
         "O nome não pode estar vazio. Por favor, informe seu nome completo.",
         "incoming",
-        true
+        true, true
       )
     );
   } else {
     chatBox.appendChild(createChatLi(userNameData, "outgoing"));
     userName = userMessage.trim();
     chatBox.appendChild(
-      createChatLi(`Olá, ${firstName}! Por favor, informe seu CPF.`, "incoming")
+      createChatLi(`Olá, ${firstName}! Por favor, informe seu CPF.`, "incoming", false, true)
     );
     chatInput.value = "";
     awaitingNameUser = false;
@@ -946,7 +954,7 @@ const handleCpfInput = async (userMessage) => {
       createChatLi(
         "O CPF não pode ficar em branco. Por favor, informe seu CPF para continuarmos",
         "incoming",
-        true
+        true, true
       )
     );
     chatInput.value = "";
@@ -960,19 +968,18 @@ const handleCpfInput = async (userMessage) => {
             createChatLi(
               "O CPF fornecido já está associado a um registro existente. Tente novamente com outro CPF.",
               "incoming",
-              true
+              true, true
             )
           );
           chatInput.value = "";
           return;
         } else if (response.status === 404) {
-          // CPF não cadastrado
           chatBox.appendChild(createChatLi(formatCpf(userCpfData), "outgoing"));
           userCpf = userCpfData;
           chatBox.appendChild(
             createChatLi(
               "Obrigado! Agora, por favor, informe seu e-mail.",
-              "incoming"
+              "incoming", false, true
             )
           );
           chatInput.value = "";
@@ -984,7 +991,7 @@ const handleCpfInput = async (userMessage) => {
             createChatLi(
               "O CPF fornecido já está associado a um registro existente. Tente novamente com outro CPF.",
               "incoming",
-              true
+              true, true
             )
           );
           chatInput.value = "";
@@ -995,7 +1002,7 @@ const handleCpfInput = async (userMessage) => {
           createChatLi(
             "O CPF fornecido já está associado a um registro existente. Tente novamente com outro CPF.",
             "incoming",
-            true
+            true, true
           )
         );
         chatInput.value = "";
@@ -1006,7 +1013,7 @@ const handleCpfInput = async (userMessage) => {
         createChatLi(
           "O CPF fornecido já está associado a um registro existente. Tente novamente com outro CPF.",
           "incoming",
-          true
+          true, true
         )
       );
       chatInput.value = "";
@@ -1021,9 +1028,9 @@ const handleEmailInput = (userMessage) => {
   if (userMessage.trim() === "") {
     chatBox.appendChild(
       createChatLi(
-        "O e-mail não pode estar vazio. Por favor, informe seu e-mail",
+        "O e-mail não pode estar vazio. Por favor, informe seu e-mail.",
         "incoming",
-        true
+        true, true
       )
     );
   } else {
@@ -1035,7 +1042,7 @@ const handleEmailInput = (userMessage) => {
       awaitingInput = false;
 
       chatBox.appendChild(
-        createChatLi(`Obrigado. Por favor, Informe o seu cargo.`, "incoming")
+        createChatLi(`Obrigado. Por favor, Informe o seu cargo.`, "incoming", false, true)
       );
       formProfission.style.display = "block";
       chatBox.appendChild(formProfission);
@@ -1045,16 +1052,13 @@ const handleEmailInput = (userMessage) => {
         createChatLi(
           "E-mail inválido. Por favor, insira um e-mail válido.",
           "incoming",
-          true
+          true, true
         )
       );
       chatInput.value = "";
     }
   }
 };
-
-let awaitHours = false; // Variável para verificar se estamos esperando as horas
-let awaitDate = false; // Variável para verificar se estamos esperando a data
 
 const handleProfessionInput = (userMessage) => {
   const reason = userMessage.trim();
@@ -1065,14 +1069,14 @@ const handleProfessionInput = (userMessage) => {
         createChatLi(
           "O motivo não pode estar vazio. Por favor, informe o motivo da falta.",
           "incoming",
-          true
+          true, true
         )
       );
     } else {
       chatBox.appendChild(createChatLi(reason, "outgoing"));
       detailsRequest = userMessage.trim();
       chatBox.appendChild(
-        createChatLi(`Obrigado. Por favor, insira a data da falta.`, "incoming")
+        createChatLi(`Obrigado. Por favor, insira a data da falta.`, "incoming", false, true)
       );
       chatInput.value = "";
       formDate.style.display = "block";
@@ -1087,14 +1091,14 @@ const handleProfessionInput = (userMessage) => {
           createChatLi(
             "O motivo não pode estar vazio. Por favor, informe o motivo da sua solicitação.",
             "incoming",
-            true
+            true, true
           )
         );
       } else {
         chatBox.appendChild(createChatLi(reason, "outgoing"));
         detailsRequest = userMessage.trim();
         chatBox.appendChild(
-          createChatLi(`Quantas horas extras você deseja solicitar?`, "incoming")
+          createChatLi(`Quantas horas extras você deseja solicitar?`, "incoming", false, true)
         );
         chatInput.value = "";
         formHour.style.display = "block";
@@ -1193,7 +1197,7 @@ const handleProfessionInput = (userMessage) => {
         createChatLi(
           "O motivo não pode estar vazio. Por favor, informe o motivo da sua solicitação.",
           "incoming",
-          true
+          true, true
         )
       );
     } else {
@@ -1202,7 +1206,7 @@ const handleProfessionInput = (userMessage) => {
       chatBox.appendChild(
         createChatLi(
           `Por favor, informe a data em que gostaria que seu desligamento fosse efetivado.`,
-          "incoming"
+          "incoming", false, true
         )
       );
       chatInput.value = "";
@@ -1217,7 +1221,7 @@ const handleProfessionInput = (userMessage) => {
         createChatLi(
           "O motivo não pode estar vazio. Por favor, informe o motivo da sua solicitação.",
           "incoming",
-          true
+          true, true
         )
       );
     } else {
@@ -1227,7 +1231,7 @@ const handleProfessionInput = (userMessage) => {
       chatBox.appendChild(
         createChatLi(
           `Por favor, Informe o benefício que você deseja.`,
-          "incoming"
+          "incoming", false, true
         )
       );
       formBeneficios.style.display = "block";
@@ -1242,7 +1246,7 @@ const handleProfessionInput = (userMessage) => {
         createChatLi(
           "O motivo não pode estar vazio. Por favor, informe o motivo da sua solicitação.",
           "incoming",
-          true
+          true, true
         )
       );
     } else {
@@ -1252,7 +1256,7 @@ const handleProfessionInput = (userMessage) => {
       chatBox.appendChild(
         createChatLi(
           `Por favor, Informe o documento que você deseja.`,
-          "incoming"
+          "incoming", false, true
         )
       );
       formDocumentos.style.display = "block";
