@@ -1269,11 +1269,14 @@ const handleProfessionInput = (userMessage) => {
 function handleMessageInit(options) {
   const values = Object.keys(options);
   values.forEach((key) => {
-    chatBox.appendChild(createChatLi(`${key}. ${options[key]}`, "incoming"));
+    chatBox.appendChild(createChatLi(`${key}. ${options[key]}`, "incoming", false, true));
   });
 
 }
-handleMessageInit(options);
+
+setTimeout(() => {
+  handleMessageInit(options);
+}, 3000);
 
 const handleEnter = () => {
   document.addEventListener("keydown", (event) => {
@@ -1288,7 +1291,9 @@ sendChatBtn.addEventListener("click", handleChat);
 chatbotToggler.addEventListener("click", () =>
   document.body.classList.toggle("show-chatbot")
 );
+
 chatbotCloseBtn.addEventListener("click", () =>
   document.body.classList.remove("show-chatbot")
 );
+
 handleEnter();
