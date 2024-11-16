@@ -1274,9 +1274,15 @@ function handleMessageInit(options) {
 
 }
 
-setTimeout(() => {
-  handleMessageInit(options);
-}, 3000);
+chatbotToggler.addEventListener("click", () => {
+  document.body.classList.toggle("show-chatbot");
+
+  if (document.body.classList.contains("show-chatbot")) {
+    setTimeout(() => {
+      handleMessageInit(options);
+    }, 3000);
+  }
+});
 
 const handleEnter = () => {
   document.addEventListener("keydown", (event) => {
@@ -1288,9 +1294,6 @@ const handleEnter = () => {
 };
 
 sendChatBtn.addEventListener("click", handleChat);
-chatbotToggler.addEventListener("click", () =>
-  document.body.classList.toggle("show-chatbot")
-);
 
 chatbotCloseBtn.addEventListener("click", () =>
   document.body.classList.remove("show-chatbot")
