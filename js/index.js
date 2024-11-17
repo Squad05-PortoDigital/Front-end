@@ -71,40 +71,6 @@ function formatarDataParaBR(dataAmericana) {
   return `${dia}-${mes}-${ano}`;
 }
 
-async function verificarCpf(option, cpf) {
-  try {
-    const response = await fetch(
-      `http://localhost:8080/funcionarios/buscarcpf/${cpf}`
-    );
-
-    const idUsers = [];
-    
-    const data = await response.json();
-      data.forEach(data => {
-        idUsers.push(data.id_funcionario)
-      });
-
-    for(let id of idUsers) {
-      const response_ocorrencia = await fetch(
-        `http://localhost:8080/processos/${id}`
-      );
-      const data_ocorrencia = await response_ocorrencia.json();
-      console.log(data_ocorrencia);
-    }
-
-    if (["1", "2", "3", "4", "5", "6"].includes(option) && response.ok) {
-      console.log(idUsers);
-      return true;
-    } else {
-      console.log("Nenhum dado encontrado");
-      return false;
-    }
-  } catch (err) {
-    console.log(err);
-    return false;
-  }
-}
-
 const handleCpfInput = async (userMessage) => {
   const cpfFormat = /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/;
   const userCpfData = userMessage.trim();
@@ -133,22 +99,6 @@ const handleCpfInput = async (userMessage) => {
       chatInput.value = "";
     } else {
       chatBox.appendChild(createChatLi(formatCpf(userCpfData), "outgoing"));
-      const cpfValido = await verificarCpf(selectedOption, userCpfData);
-
-      if (cpfValido) {
-        // Fluxo para quando o CPF for encontrado
-        chatBox.appendChild(
-          createChatLi(
-            "Este CPF já está associado a esta ocorrência. Não é possível prosseguir com o mesmo CPF.",
-            "incoming",
-            true,
-            true
-          )
-        );
-        chatInput.value = "";
-        console.log("CPF encontrado, não pode prosseguir.");
-      } else {
-        // Fluxo para quando o CPF não for encontrado ou houver erro
         userCpf = userCpfData;
         chatBox.appendChild(
           createChatLi(
@@ -161,26 +111,6 @@ const handleCpfInput = async (userMessage) => {
         chatInput.value = "";
         awaitingCpfUser = false;
         awaitingEmailUser = true;
-        console.log("CPF não encontrado, pode prosseguir");
-      }
-
-      // // Chamada da função de verificação com a ocorrência atual
-      // const isCpfAllowed = await verificarCpfPorOcorrencia(userCpfData, idOcorrenciaAtual);
-
-      // if (!isCpfAllowed) {
-      //   chatBox.appendChild(
-      //     createChatLi(
-      //       "Este CPF já está associado a esta ocorrência. Não é possível prosseguir com o mesmo CPF.",
-      //       "incoming",
-      //       true,
-      //       true
-      //     )
-      //   );
-      //   chatInput.value = "";
-      //   return; // Interrompe o fluxo
-      // }
-
-      // Se o CPF for válido e não estiver na mesma ocorrência
     }
   }
 };
@@ -1404,7 +1334,7 @@ chatbotToggler.addEventListener("click", () => {
   if (document.body.classList.contains("show-chatbot")) {
     setTimeout(() => {
       handleMessageInit(options);
-    }, 3000);
+    }, 1000);
   }
 });
 
