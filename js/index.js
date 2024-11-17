@@ -71,41 +71,119 @@ function formatarDataParaBR(dataAmericana) {
   return `${dia}-${mes}-${ano}`;
 }
 
-async function verificarCpfPorOcorrencia(cpf, idOcorrenciaAtual) {
+async function verificarCpf(option, cpf) {
   try {
-    // Fazendo a chamada à API
-    const response = await fetch(`http://localhost:8080/processos/${cpf}`);
+    const response = await fetch(
+      `http://localhost:8080/funcionarios/buscarcpf/${cpf}`
+    );
 
-    if (response.ok) {
-      const data = await response.json();
+    const idUsers = [];
+    
+    const data = await response.json();
+      data.forEach(data => {
+        idUsers.push(data.id_funcionario)
+      });
 
-      if (data.exists) {
-        // Verifica se o CPF está vinculado à ocorrência atual
-        const { ocorrencias } = data;
+    for(let id of idUsers) {
+      const response_ocorrencia = await fetch(
+        `http://localhost:8080/processos/${id}`
+      );
+      const data_ocorrencia = await response_ocorrencia.json();
+      console.log(data_ocorrencia);
+    }
 
-        if (ocorrencias.includes(idOcorrenciaAtual)) {
-          console.log("CPF já associado a esta ocorrência. Bloquear.");
-          return false; // Bloqueia se for a mesma ocorrência
-        } else {
-          console.log("CPF associado a outra ocorrência. Permitir.");
-          return true; // Permite se não for a mesma ocorrência
-        }
-      } else {
-        // CPF não encontrado em nenhuma ocorrência, permitir
-        console.log("CPF não cadastrado em nenhuma ocorrência.");
-        return true;
-      }
+    if (["1", "2", "3", "4", "5", "6"].includes(option) && response.ok) {
+      console.log(idUsers);
+      return true;
     } else {
-      console.error(`Erro na API: Status ${response.status}`);
-      alert("Não foi possível verificar o CPF. Tente novamente mais tarde.");
+      console.log("Nenhum dado encontrado");
       return false;
     }
-  } catch (error) {
-    console.error("Erro ao verificar CPF:", error);
-    alert("Erro ao verificar CPF. Tente novamente.");
+  } catch (err) {
+    console.log(err);
     return false;
   }
 }
+
+const handleCpfInput = async (userMessage) => {
+  const cpfFormat = /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/;
+  const userCpfData = userMessage.trim();
+
+  if (userCpfData === "") {
+    chatBox.appendChild(
+      createChatLi(
+        "O CPF não pode ficar em branco. Por favor, informe seu CPF para continuarmos.",
+        "incoming",
+        true,
+        true
+      )
+    );
+    chatInput.value = "";
+  } else {
+    if (!cpfFormat.test(userCpfData)) {
+      chatBox.appendChild(createChatLi(formatCpf(userCpfData), "outgoing"));
+      chatBox.appendChild(
+        createChatLi(
+          "CPF Inválido. Por favor, insira um CPF válido.",
+          "incoming",
+          true,
+          true
+        )
+      );
+      chatInput.value = "";
+    } else {
+      chatBox.appendChild(createChatLi(formatCpf(userCpfData), "outgoing"));
+      const cpfValido = await verificarCpf(selectedOption, userCpfData);
+
+      if (cpfValido) {
+        // Fluxo para quando o CPF for encontrado
+        chatBox.appendChild(
+          createChatLi(
+            "Este CPF já está associado a esta ocorrência. Não é possível prosseguir com o mesmo CPF.",
+            "incoming",
+            true,
+            true
+          )
+        );
+        chatInput.value = "";
+        console.log("CPF encontrado, não pode prosseguir.");
+      } else {
+        // Fluxo para quando o CPF não for encontrado ou houver erro
+        userCpf = userCpfData;
+        chatBox.appendChild(
+          createChatLi(
+            "Obrigado! Agora, por favor, informe seu e-mail.",
+            "incoming",
+            false,
+            true
+          )
+        );
+        chatInput.value = "";
+        awaitingCpfUser = false;
+        awaitingEmailUser = true;
+        console.log("CPF não encontrado, pode prosseguir");
+      }
+
+      // // Chamada da função de verificação com a ocorrência atual
+      // const isCpfAllowed = await verificarCpfPorOcorrencia(userCpfData, idOcorrenciaAtual);
+
+      // if (!isCpfAllowed) {
+      //   chatBox.appendChild(
+      //     createChatLi(
+      //       "Este CPF já está associado a esta ocorrência. Não é possível prosseguir com o mesmo CPF.",
+      //       "incoming",
+      //       true,
+      //       true
+      //     )
+      //   );
+      //   chatInput.value = "";
+      //   return; // Interrompe o fluxo
+      // }
+
+      // Se o CPF for válido e não estiver na mesma ocorrência
+    }
+  }
+};
 
 function UserDatas() {
   const userData = {
@@ -1038,71 +1116,6 @@ const handleNameInput = (userMessage) => {
     awaitingCpfUser = true;
   }
 };
-
-
-const handleCpfInput = async (userMessage, idOcorrenciaAtual) => {
-  const cpfFormat = /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/;
-  const userCpfData = userMessage.trim();
-
-  if (userCpfData === "") {
-    chatBox.appendChild(
-      createChatLi(
-        "O CPF não pode ficar em branco. Por favor, informe seu CPF para continuarmos.",
-        "incoming",
-        true,
-        true
-      )
-    );
-    chatInput.value = "";
-  } else {
-    if (!cpfFormat.test(userCpfData)) {
-      chatBox.appendChild(createChatLi(formatCpf(userCpfData), "outgoing"));
-      chatBox.appendChild(
-        createChatLi(
-          "CPF Inválido. Por favor, insira um CPF válido.",
-          "incoming",
-          true,
-          true
-        )
-      );
-      chatInput.value = "";
-    } else {
-      chatBox.appendChild(createChatLi(formatCpf(userCpfData), "outgoing"));
-
-      // Chamada da função de verificação com a ocorrência atual
-      const isCpfAllowed = await verificarCpfPorOcorrencia(userCpfData, idOcorrenciaAtual);
-
-      if (!isCpfAllowed) {
-        chatBox.appendChild(
-          createChatLi(
-            "Este CPF já está associado a esta ocorrência. Não é possível prosseguir com o mesmo CPF.",
-            "incoming",
-            true,
-            true
-          )
-        );
-        chatInput.value = "";
-        return; // Interrompe o fluxo
-      }
-
-      // Se o CPF for válido e não estiver na mesma ocorrência
-      userCpf = userCpfData;
-      chatBox.appendChild(
-        createChatLi(
-          "Obrigado! Agora, por favor, informe seu e-mail.",
-          "incoming",
-          false,
-          true
-        )
-      );
-      chatInput.value = "";
-      awaitingCpfUser = false;
-      awaitingEmailUser = true;
-    }
-  }
-};
-
-
 
 const handleEmailInput = (userMessage) => {
   const emailFormat = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
