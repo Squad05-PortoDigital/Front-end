@@ -142,10 +142,16 @@
                 <button class="btn btn-danger" id="btnStatus">Reprovado</button>
             </div>
 
-            <!-- GROUP BUTTON NO OR YES -->
+            <!-- GROUP BUTTON NO OR YES ARCHIVE -->
             <div class="mb-4 py-2" style="display: none;" id="btns-groupArchive">
                 <button class="btn btn-success" id="btnArchive">Sim</button>
                 <button class="btn btn-danger" id="btnArchive">Não</button>
+            </div>
+
+              <!-- GROUP BUTTON NO OR YES CHOICE USER FOLLOW -->
+              <div class="mb-4 py-2" style="display: none;" id="btns-groupChoiceUser">
+                <button class="btn btn-success" id="btnChoiceUser">Sim</button>
+                <button class="btn btn-danger" id="btnChoiceUser">Não</button>
             </div>
 
             <!-- FORM UPLOAD -->
@@ -155,10 +161,9 @@
             </form>
 
             <!-- BUTTON GENERATE COMPROVANTE PDF -->
-             <button class="btn btn-success mt-2" id="buttonGenerate" style="display: none;">Gerar Comprovante</button>
+             <button class="btn btn-success mt-2 mb-4" id="buttonGenerate" style="display: none;">Gerar Comprovante</button>
 
-             <!-- CAMPO DATE-->
-               <!-- FORM DATE -->
+              <!-- FORM DATE -->
             <form action="/submit" method="POST" id="FieldDate" style="display: none;" class="py-2">
               <input type="date" id="fieldDate" name="fieldDate" class="form-control" required>
           </form>

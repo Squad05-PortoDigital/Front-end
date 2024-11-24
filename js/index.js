@@ -31,6 +31,9 @@ const buttonNivelStatus = document.querySelectorAll("#btnStatus");
 const buttonGroupArchive = document.getElementById("btns-groupArchive");
 const buttonArchive = document.querySelectorAll("#btnArchive");
 
+const buttonGroupChoiceUser = document.getElementById("btns-groupChoiceUser");
+const buttonChoiceUser = document.querySelectorAll("#btnChoiceUser");
+
 const formUpload = document.getElementById("uploadForm");
 const som = document.getElementById("chat-sound");
 
@@ -48,13 +51,10 @@ let nivelStatusRequested = "";
 let hoursRequested = "";
 let funcionarioId = "";
 let selectedFile;
-
 let dateRequestedHolidayFirst = "";
 let dateRequestedHolidayEnd = "";
-
 let selectedOption = "";
 let selectedChoice = "";
-
 let documentSelected = "";
 
 const getDateCurrent = () => {
@@ -99,18 +99,19 @@ const handleCpfInput = async (userMessage) => {
       chatInput.value = "";
     } else {
       chatBox.appendChild(createChatLi(formatCpf(userCpfData), "outgoing"));
-        userCpf = userCpfData;
-        chatBox.appendChild(
-          createChatLi(
-            "Obrigado! Agora, por favor, informe seu e-mail.",
-            "incoming",
-            false,
-            true
-          )
-        );
-        chatInput.value = "";
-        awaitingCpfUser = false;
-        awaitingEmailUser = true;
+
+      userCpf = userCpfData;
+      chatBox.appendChild(
+        createChatLi(
+          "Obrigado! Agora, por favor, informe seu e-mail.",
+          "incoming",
+          false,
+          true
+        )
+      );
+      chatInput.value = "";
+      awaitingCpfUser = false;
+      awaitingEmailUser = true;
     }
   }
 };
@@ -198,8 +199,6 @@ function preventButton() {
   });
 }
 
-preventButton();
-
 async function dataFuncionarios() {
   const response = await fetch("http://localhost:8080/funcionarios");
   const dataJson = await response.json();
@@ -211,9 +210,6 @@ async function dataProcessos() {
   const dataJson = await response.json();
   console.log(dataJson);
 }
-
-dataFuncionarios();
-dataProcessos();
 
 function handleGroupBtnsStatus() {
   buttonsNivelUrgency.forEach((button, index) => {
@@ -475,6 +471,7 @@ async function sendFile(idOcorrencia) {
     });
 }
 
+// aqui
 function handleArchive() {
   buttonArchive.forEach((button) => {
     button.addEventListener("click", () => {
@@ -503,7 +500,10 @@ function handleArchive() {
         );
         formUpload.style.display = "block";
         chatBox.appendChild(formUpload);
-      } else if (buttonText === "Sim" && selectedOption === "3") {
+      } else if (buttonText === "Sim" && selectedOption === "3" ||
+                 buttonText === "Sim" && selectedOption === "4" ||
+                 buttonText === "Sim" && selectedOption === "5" ||
+                 buttonText === "Sim" && selectedOption === "6") {
         chatBox.appendChild(
           createChatLi(
             "Por favor, selecione o arquivo que deseja anexar à sua solicitação.",
@@ -514,60 +514,86 @@ function handleArchive() {
         );
         formUpload.style.display = "block";
         chatBox.appendChild(formUpload);
-      } else if (buttonText === "Sim" && selectedOption === "4") {
+      }
+
+
+      if (buttonText === "Não") {
+
         chatBox.appendChild(
-          createChatLi(
-            "Por favor, selecione o arquivo que deseja anexar à sua solicitação.",
-            "incoming",
-            false,
-            true
-          )
-        );
-        formUpload.style.display = "block";
-        chatBox.appendChild(formUpload);
-      } else if (buttonText === "Sim" && selectedOption === "5") {
-        chatBox.appendChild(
-          createChatLi(
-            "Por favor, selecione o arquivo que deseja anexar à sua solicitação.",
-            "incoming",
-            false,
-            true
-          )
-        );
-        formUpload.style.display = "block";
-        chatBox.appendChild(formUpload);
-      } else if (buttonText === "Sim" && selectedOption === "6") {
-        chatBox.appendChild(
-          createChatLi(
-            "Por favor, selecione o arquivo que deseja anexar à sua solicitação.",
-            "incoming",
-            false,
-            true
-          )
-        );
-        formUpload.style.display = "block";
-        chatBox.appendChild(formUpload);
-      } else {
-        chatBox.appendChild(
-          createChatLi(
-            "Sua solicitação foi recebida. Acompanhe seu e-mail para mais detalhes.",
-            "incoming",
-            false,
-            true
-          )
+          createChatLi("Sua solicitação foi recebida. Acompanhe seu e-mail para mais detalhes.", "incoming", false, true)
         );
 
         document.getElementById("buttonGenerate").style.display = "block";
         chatBox.appendChild(document.getElementById("buttonGenerate"));
+
+        chatBox.appendChild(
+          createChatLi("Posso te ajudar em algo mais?", "incoming", false, true)
+        );
+
+        buttonGroupChoiceUser.style.display = "block";
+        chatBox.appendChild(buttonGroupChoiceUser);
+
+       
+        UserDatas();
+        cadastrarFuncionario();
+        sendUserDataProcessos();
+      
       }
 
       buttonArchive.forEach((btn) => {
         btn.disabled = true;
       });
 
-      UserDatas();
-      cadastrarFuncionario();
-      sendUserDataProcessos();
+      formUpload.addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        chatBox.appendChild(
+          createChatLi("Posso te ajudar em algo mais?", "incoming", false, true)
+        );
+        
+        buttonGroupChoiceUser.style.display = "block";
+        chatBox.appendChild(buttonGroupChoiceUser);
+
+        UserDatas();
+        cadastrarFuncionario();
+        sendUserDataProcessos();
+      });
+    });
+  });
+}
+
+
+
+function handleChoiceUser() {
+  buttonChoiceUser.forEach((button) => {
+    button.addEventListener("click", () => {
+      const buttonText = button.textContent;
+      chatBox.appendChild(createChatLi(buttonText, "outgoing"));
+
+      if (buttonText === "Sim") {
+        chatBox.appendChild(
+          createChatLi(
+            "Entendido. Voce será redirecionado para fazer outra ocorrência, aguarde...",
+            "incoming",
+            false,
+            true
+          )
+        );
+        reloadPage();
+      } else {
+        chatBox.appendChild(
+          createChatLi(
+            "Ok, estarei aqui caso precise retomar o processo em outro momento. Tenha um bom dia!",
+            "incoming",
+            false,
+            true
+          )
+        );
+      }
+
+      buttonChoiceUser.forEach((btn) => {
+        btn.disabled = true;
+      });
     });
   });
 }
@@ -711,6 +737,10 @@ function handleBtnProfission() {
       );
     }
 
+    setTimeout(() => {
+      btnSendProfission.disabled = false;
+    }, 3000);
+
     awaitingProfission = true;
   });
 }
@@ -791,12 +821,6 @@ function handleDocumentos() {
   });
 }
 
-handleBtnHour();
-handleBtnDate();
-handleBtnProfission();
-handleBeneficios();
-handleDocumentos();
-
 let awaitingEmail = false;
 let awaitingDetailsRequest = false;
 
@@ -860,15 +884,6 @@ function formatCpf(cpf) {
   cpf = cpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
   return cpf;
 }
-
-const resetForm = () => {
-  selectedOption = "";
-  userName = "";
-  userCpf = "";
-  absenceDate = "";
-  absenceReason = "";
-  hourRequested = "";
-};
 
 let awaitingNameUser = false;
 let awaitingCpfUser = false;
@@ -1328,12 +1343,19 @@ function handleMessageInit(options) {
   });
 }
 
+let isMessageInitialized = false;
+let areOptionsInitialized = false;
+
 chatbotToggler.addEventListener("click", () => {
   document.body.classList.toggle("show-chatbot");
 
-  if (document.body.classList.contains("show-chatbot")) {
+  if (
+    document.body.classList.contains("show-chatbot") &&
+    !isMessageInitialized
+  ) {
     setTimeout(() => {
       handleMessageInit(options);
+      isMessageInitialized = true;
     }, 1000);
   }
 });
@@ -1347,10 +1369,40 @@ const handleEnter = () => {
   });
 };
 
+function reloadPage() {
+  localStorage.setItem("showChatbot", "true");
+
+  setTimeout(() => {
+    location.reload();
+  }, 2000);
+}
+
+window.addEventListener("load", () => {
+  if (localStorage.getItem("showChatbot") === "true") {
+    document.body.classList.add("show-chatbot"); // Adiciona a classe para exibir o chatbot
+    localStorage.removeItem("showChatbot"); // Limpa o localStorage
+
+    // Inicializa a mensagem do chatbot
+    setTimeout(() => {
+      handleMessageInit(options);
+    }, 1000);
+  }
+});
+
+
 sendChatBtn.addEventListener("click", handleChat);
 
 chatbotCloseBtn.addEventListener("click", () =>
   document.body.classList.remove("show-chatbot")
 );
 
+handleBtnHour();
+handleBtnDate();
+handleBtnProfission();
+handleBeneficios();
+handleDocumentos();
+dataFuncionarios();
+dataProcessos();
 handleEnter();
+preventButton();
+handleChoiceUser();
