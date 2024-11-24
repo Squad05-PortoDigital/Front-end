@@ -471,7 +471,6 @@ async function sendFile(idOcorrencia) {
     });
 }
 
-// aqui
 function handleArchive() {
   buttonArchive.forEach((button) => {
     button.addEventListener("click", () => {
@@ -561,8 +560,6 @@ function handleArchive() {
     });
   });
 }
-
-
 
 function handleChoiceUser() {
   buttonChoiceUser.forEach((button) => {
@@ -736,10 +733,6 @@ function handleBtnProfission() {
         )
       );
     }
-
-    setTimeout(() => {
-      btnSendProfission.disabled = false;
-    }, 3000);
 
     awaitingProfission = true;
   });
