@@ -498,8 +498,6 @@ function handleArchive() {
         buttonGroupChoiceUser.style.display = "block";
         chatBox.appendChild(buttonGroupChoiceUser);
 
-       
-        UserDatas();
         cadastrarFuncionario();
         sendUserDataProcessos();
       
