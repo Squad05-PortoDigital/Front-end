@@ -116,40 +116,6 @@ const handleCpfInput = async (userMessage) => {
   }
 };
 
-function UserDatas() {
-  const userData = {
-    name: userName,
-    cpf: userCpf,
-    email: userEmail,
-    descricao: detailsRequest,
-    tipo_processo: selectedInitialOption || "",
-    data_solicitacao: getDateCurrent(),
-    data_ocorrido: userDateToOcorrencia || null,
-    urgencia: nivelStatusRequested || "",
-    id_destinatario: funcionarioId || null,
-    id_funcionario: funcionarioId || null,
-    hour: hourRequested,
-    dateHolidayFirst: dateRequestedHolidayFirst,
-    dateHolidayEnd: dateRequestedHolidayEnd,
-    hourExtra: dateRequestedHolidayEnd,
-    beneficio: selectedOption === "5" ? beneficioSelected : null,
-    documento: selectedOption === "6" ? documentSelected : null,
-  };
-
-  console.log(`Nome: ${userData.name}`);
-  console.log(`Data da solicitação: ${userData.data_solicitacao}`);
-  console.log(`Data para Ocorrência: ${userData.data_ocorrido}`);
-  console.log(`CPF: ${userData.cpf}`);
-  console.log(`Descrição: ${userData.descricao}`);
-  console.log(`Tipo de processo: ${userData.tipo_processo}`);
-  console.log(`Urgência: ${userData.urgencia}`);
-  console.log(`Data de férias inicio: ${userData.dateHolidayFirst}`);
-  console.log(`Data de férias fim: ${userData.dateHolidayEnd}`);
-  console.log(`Horas Requisitadas: ${userData.hour}`);
-  console.log(`Beneficio: ${userData.beneficio}`);
-  console.log(`Documento: ${userData.documento}`);
-}
-
 function preventButton() {
   document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("uploadForm");
@@ -451,7 +417,7 @@ async function sendFile(idOcorrencia) {
       formData.append("file", selectedFile);
       formData.append("ocorrenciaId", idOcorrencia);
 
-      fetch("http://localhost:8080/processos/upload", {
+      fetch("https://back-end-chatbot-deploy.up.railway.app/upload", {
         method: "POST",
         body: formData,
         credentials: "include",
@@ -1372,10 +1338,9 @@ function reloadPage() {
 
 window.addEventListener("load", () => {
   if (localStorage.getItem("showChatbot") === "true") {
-    document.body.classList.add("show-chatbot"); // Adiciona a classe para exibir o chatbot
-    localStorage.removeItem("showChatbot"); // Limpa o localStorage
+    document.body.classList.add("show-chatbot");
+    localStorage.removeItem("showChatbot");
 
-    // Inicializa a mensagem do chatbot
     setTimeout(() => {
       handleMessageInit(options);
     }, 1000);
