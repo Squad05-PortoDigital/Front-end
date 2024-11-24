@@ -497,7 +497,7 @@ function handleArchive() {
 
         buttonGroupChoiceUser.style.display = "block";
         chatBox.appendChild(buttonGroupChoiceUser);
-
+        
         cadastrarFuncionario();
         sendUserDataProcessos();
       
@@ -517,7 +517,6 @@ function handleArchive() {
         buttonGroupChoiceUser.style.display = "block";
         chatBox.appendChild(buttonGroupChoiceUser);
 
-        UserDatas();
         cadastrarFuncionario();
         sendUserDataProcessos();
       });
