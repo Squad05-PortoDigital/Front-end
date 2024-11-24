@@ -200,13 +200,13 @@ function preventButton() {
 }
 
 async function dataFuncionarios() {
-  const response = await fetch("http://localhost:8080/funcionarios");
+  const response = await fetch("https://back-end-chatbot-deploy.up.railway.app/funcionarios");
   const dataJson = await response.json();
   console.log(dataJson);
 }
 
 async function dataProcessos() {
-  const response = await fetch("http://localhost:8080/processos");
+  const response = await fetch("https://back-end-chatbot-deploy.up.railway.app/processos");
   const dataJson = await response.json();
   console.log(dataJson);
 }
@@ -306,7 +306,7 @@ async function cadastrarFuncionario() {
   };
 
   try {
-    const response = await fetch("http://localhost:8080/funcionarios", {
+    const response = await fetch("https://back-end-chatbot-deploy.up.railway.app/funcionarios", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -351,7 +351,7 @@ async function sendUserDataProcessos(funcionarioId) {
   };
 
   try {
-    const response = await fetch("http://localhost:8080/processos", {
+    const response = await fetch("https://back-end-chatbot-deploy.up.railway.app/processos", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
