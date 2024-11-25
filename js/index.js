@@ -549,6 +549,7 @@ function handleChoiceUser() {
             true
           )
         );
+        chatInput.disabled = true;
       }
 
       buttonChoiceUser.forEach((btn) => {
@@ -1139,7 +1140,7 @@ const handleProfessionInput = (userMessage) => {
       chatBox.appendChild(
         createChatLi(
           "Por favor, informe a data de início das férias.",
-          "incoming"
+          "incoming", false, true
         )
       );
       chatInput.value = "";
@@ -1163,7 +1164,7 @@ const handleProfessionInput = (userMessage) => {
             chatBox.appendChild(
               createChatLi(
                 "Agora, informe a data final das férias.",
-                "incoming"
+                "incoming", false, true
               )
             );
             formDateInit.style.display = "none";
@@ -1190,7 +1191,7 @@ const handleProfessionInput = (userMessage) => {
                   chatBox.appendChild(
                     createChatLi(
                       "Obrigado. Qual é o nível de urgência da sua solicitação?",
-                      "incoming"
+                      "incoming", false, true
                     )
                   );
                   btnGroupUrgency.style.display = "block";
