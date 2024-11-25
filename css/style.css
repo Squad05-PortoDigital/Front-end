@@ -88,7 +88,7 @@
     padding: 12px 16px;
     border-radius: 10px 10px 0 10px;
     background: #724ae8;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     white-space: pre-wrap;
 }
 
@@ -196,5 +196,9 @@
 
     .chatbot header span {
         display: none;
+    }
+
+    .chatbox .chat p {
+        font-size: 0.95rem;
     }
 }
