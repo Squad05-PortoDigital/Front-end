@@ -310,7 +310,7 @@ async function sendUserDataProcessos(funcionarioId) {
     inicio_ferias: selectedOption === "3" ? dateRequestedHolidayFirst : null,
     fim_ferias: selectedOption === "3" ? dateRequestedHolidayEnd : null,
     urgencia: nivelStatusRequested,
-    id_destinatario: Math.floor(Math.random() * 100) + 1,
+    id_destinatario: funcionarioId || null,
     id_funcionario: funcionarioId || null,
     beneficio: selectedOption === "5" ? beneficioSelected : null,
     nome_documento: selectedOption === "6" ? documentSelected : null,
