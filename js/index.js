@@ -282,14 +282,11 @@ async function cadastrarFuncionario() {
 
     if (response.ok) {
       const funcionario = await response.json();
-      console.log("Resposta da API:", funcionario);
 
-      // Verificar se o id_funcionario existe
       if (funcionario.id_funcionario) {
         const funcionario_id = funcionario.id_funcionario;
-        console.log("ID do funcionário:", funcionario_id);
 
-        await sendUserDataProcessos(funcionario_id); // Passar o ID para a próxima função
+        await sendUserDataProcessos(funcionario_id);
       } else {
         console.error("ID do funcionário não encontrado.");
       }
@@ -323,8 +320,6 @@ async function sendUserDataProcessos(funcionarioId) {
     nome_documento: selectedOption === "6" ? documentSelected : null,
   };
 
-  console.log("Enviando dados do processo:", userData);
-
   try {
     // Envio dos dados para a API
     const response = await fetch("https://back-end-chatbot-deploy.up.railway.app/processos", {
@@ -337,10 +332,8 @@ async function sendUserDataProcessos(funcionarioId) {
 
     if (response.ok) {
       const processo = await response.json();
-      console.log("Processo registrado com sucesso:", processo);
 
       const processo_ocorrencia = processo.id_ocorrencia;
-      console.log('Id da ocorrencia', processo_ocorrencia);
 
       await sendFile(processo_ocorrencia);
 
@@ -368,10 +361,8 @@ async function sendFile(idOcorrencia) {
       event.preventDefault();
       const formData = new FormData();
       const fileInput = document.getElementById("fileInput");
-
-      
+     
       selectedFile = fileInput.files[0];
-      console.log(selectedFile);
 
       if (!selectedFile) {
         console.error("Nenhum arquivo selecionado");
