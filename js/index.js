@@ -282,14 +282,19 @@ async function cadastrarFuncionario() {
 
     if (response.ok) {
       const funcionario = await response.json();
-      const funcionario_id = funcionario.id_funcionario;
-      await sendUserDataProcessos(funcionario_id);
+      console.log("Resposta da API:", funcionario);
+
+      // Verificar se o id_funcionario existe
+      if (funcionario.id_funcionario) {
+        const funcionario_id = funcionario.id_funcionario;
+        console.log("ID do funcionário:", funcionario_id);
+
+        await sendUserDataProcessos(funcionario_id); // Passar o ID para a próxima função
+      } else {
+        console.error("ID do funcionário não encontrado.");
+      }
     } else {
-      console.error(
-        "Erro ao cadastrar funcionário:",
-        response.status,
-        response.statusText
-      );
+      console.error("Erro ao cadastrar funcionário:", response.status, response.statusText);
     }
   } catch (e) {
     console.log("Erro ao enviar os dados", e);
@@ -298,8 +303,10 @@ async function cadastrarFuncionario() {
 
 async function sendUserDataProcessos(funcionarioId) {
   const button = document.getElementById("buttonGenerate");
-  button.textContent = "Aguarde...";
-  button.disabled = true;
+  if (!funcionarioId) {
+    console.error("Erro: ID do funcionário não fornecido.");
+    return;
+  }
 
   const userData = {
     descricao: detailsRequest,
@@ -310,13 +317,16 @@ async function sendUserDataProcessos(funcionarioId) {
     inicio_ferias: selectedOption === "3" ? dateRequestedHolidayFirst : null,
     fim_ferias: selectedOption === "3" ? dateRequestedHolidayEnd : null,
     urgencia: nivelStatusRequested,
-    id_destinatario: funcionarioId || null,
-    id_funcionario: funcionarioId || null,
+    id_destinatario: funcionarioId,
+    id_funcionario: funcionarioId,
     beneficio: selectedOption === "5" ? beneficioSelected : null,
     nome_documento: selectedOption === "6" ? documentSelected : null,
   };
 
+  console.log("Enviando dados do processo:", userData);
+
   try {
+    // Envio dos dados para a API
     const response = await fetch("https://back-end-chatbot-deploy.up.railway.app/processos", {
       method: "POST",
       headers: {
@@ -327,7 +337,11 @@ async function sendUserDataProcessos(funcionarioId) {
 
     if (response.ok) {
       const processo = await response.json();
+      console.log("Processo registrado com sucesso:", processo);
+
       const processo_ocorrencia = processo.id_ocorrencia;
+      console.log('Id da ocorrencia', processo_ocorrencia);
+
       await sendFile(processo_ocorrencia);
 
       button.textContent = "Gerar Comprovante";
@@ -338,17 +352,53 @@ async function sendUserDataProcessos(funcionarioId) {
         button.disabled = true;
       };
     } else {
-      console.error(
-        "Erro ao registrar o processo:",
-        response.status,
-        response.statusText
-      );
+      console.error("Erro ao registrar o processo:", response.status, response.statusText);
       button.textContent = "Erro! Tente novamente";
     }
   } catch (e) {
     console.log("Erro ao enviar os dados", e);
     button.textContent = "Erro! Tente novamente";
   }
+}
+
+async function sendFile(idOcorrencia) {
+  document
+    .getElementById("uploadForm")
+    .addEventListener("submit", function (event) {
+      event.preventDefault();
+      const formData = new FormData();
+      const fileInput = document.getElementById("fileInput");
+
+      
+      selectedFile = fileInput.files[0];
+      console.log(selectedFile);
+
+      if (!selectedFile) {
+        console.error("Nenhum arquivo selecionado");
+        return;
+      }
+
+      formData.append("file", selectedFile);
+      formData.append("ocorrenciaId", idOcorrencia);
+
+      fetch("https://back-end-chatbot-deploy.up.railway.app/upload", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Erro ao fazer upload: " + response.statusText);
+          }
+          return response.text();
+        })
+        .then((data) => {
+          document.getElementById("btn-send-file").disabled = true;
+        })
+        .catch((error) => {
+          console.error("Erro ao fazer upload:", error);
+        });
+    });
 }
 
 async function generatePdf(id_ocorrencia) {
@@ -402,39 +452,6 @@ async function generatePdf(id_ocorrencia) {
   doc.text("Assinatura do Solicitante", 10, textY);
 
   doc.save("comprovante.pdf");
-}
-
-async function sendFile(idOcorrencia) {
-  document
-    .getElementById("uploadForm")
-    .addEventListener("submit", function (event) {
-      event.preventDefault();
-      const formData = new FormData();
-      const fileInput = document.getElementById("fileInput");
-
-      selectedFile = fileInput.files[0];
-
-      formData.append("file", selectedFile);
-      formData.append("ocorrenciaId", idOcorrencia);
-
-      fetch("https://back-end-chatbot-deploy.up.railway.app/upload", {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Erro ao fazer upload: " + response.statusText);
-          }
-          return response.text();
-        })
-        .then((data) => {
-          document.getElementById("btn-send-file").disabled = true;
-        })
-        .catch((error) => {
-          console.error("Erro ao fazer upload:", error);
-        });
-    });
 }
 
 function handleArchive() {
@@ -499,7 +516,6 @@ function handleArchive() {
         chatBox.appendChild(buttonGroupChoiceUser);
         
         cadastrarFuncionario();
-        sendUserDataProcessos();
       
       }
 
@@ -518,7 +534,6 @@ function handleArchive() {
         chatBox.appendChild(buttonGroupChoiceUser);
 
         cadastrarFuncionario();
-        sendUserDataProcessos();
       });
     });
   });
