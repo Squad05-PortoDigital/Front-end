@@ -310,7 +310,7 @@ async function sendUserDataProcessos(funcionarioId) {
     inicio_ferias: selectedOption === "3" ? dateRequestedHolidayFirst : null,
     fim_ferias: selectedOption === "3" ? dateRequestedHolidayEnd : null,
     urgencia: nivelStatusRequested,
-    id_destinatario: funcionarioId || null,
+    id_destinatario: Math.floor(Math.random() * 100) + 1,
     id_funcionario: funcionarioId || null,
     beneficio: selectedOption === "5" ? beneficioSelected : null,
     nome_documento: selectedOption === "6" ? documentSelected : null,
@@ -1313,18 +1313,10 @@ chatbotToggler.addEventListener("click", () => {
     setTimeout(() => {
       handleMessageInit(options);
       isMessageInitialized = true;
+      let areOptionsInitialized = false;
     }, 1000);
   }
 });
-
-const handleEnter = () => {
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      handleChat();
-    }
-  });
-};
 
 function reloadPage() {
   localStorage.setItem("showChatbot", "true");
@@ -1344,6 +1336,15 @@ window.addEventListener("load", () => {
     }, 1000);
   }
 });
+
+const handleEnter = () => {
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      handleChat();
+    }
+  });
+};
 
 
 sendChatBtn.addEventListener("click", handleChat);
