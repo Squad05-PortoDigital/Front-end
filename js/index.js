@@ -321,7 +321,6 @@ async function sendUserDataProcessos(funcionarioId) {
   };
 
   try {
-    // Envio dos dados para a API
     const response = await fetch("https://back-end-chatbot-deploy.up.railway.app/processos", {
       method: "POST",
       headers: {
@@ -355,41 +354,33 @@ async function sendUserDataProcessos(funcionarioId) {
 }
 
 async function sendFile(idOcorrencia) {
-  document
-    .getElementById("uploadForm")
-    .addEventListener("submit", function (event) {
-      event.preventDefault();
-      const formData = new FormData();
-      const fileInput = document.getElementById("fileInput");
-     
-      selectedFile = fileInput.files[0];
+  const fileInput = document.getElementById("fileInput");
+  const selectedFile = fileInput.files[0];
 
-      if (!selectedFile) {
-        console.error("Nenhum arquivo selecionado");
-        return;
-      }
+  if (!selectedFile) {
+    return;
+  }
 
-      formData.append("file", selectedFile);
-      formData.append("ocorrenciaId", idOcorrencia);
+  const formData = new FormData();
+  formData.append("file", selectedFile);
+  formData.append("ocorrenciaId", idOcorrencia);
 
-      fetch("https://back-end-chatbot-deploy.up.railway.app/upload", {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Erro ao fazer upload: " + response.statusText);
-          }
-          return response.text();
-        })
-        .then((data) => {
-          document.getElementById("btn-send-file").disabled = true;
-        })
-        .catch((error) => {
-          console.error("Erro ao fazer upload:", error);
-        });
+  try {
+    const response = await fetch("https://back-end-chatbot-deploy.up.railway.app/processos/upload", {
+      method: "POST",
+      body: formData,
+      credentials: "include",
     });
+
+    if (response.ok) {
+      const data = await response.text();
+      document.getElementById("btn-send-file").disabled = true;
+    } else {
+      console.error("Erro ao fazer upload:", response.statusText);
+    }
+  } catch (error) {
+    console.error("Erro ao fazer upload:", error);
+  }
 }
 
 async function generatePdf(id_ocorrencia) {
