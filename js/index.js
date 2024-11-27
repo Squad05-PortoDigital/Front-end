@@ -624,6 +624,8 @@ function handleBtnDate() {
         true
       )
     );
+
+    chatInput.disabled = true;
     btnGroupUrgency.style.display = "block";
     chatBox.appendChild(btnGroupUrgency);
   });
@@ -633,6 +635,7 @@ function handleBtnProfission() {
   btnSendProfission.addEventListener("click", (e) => {
     e.preventDefault();
     btnSendProfission.disabled = true;
+    chatInput.disabled = false;
 
     const select = document.querySelector("#profission");
     profissionSelected = select.options[select.selectedIndex].text;
@@ -732,6 +735,8 @@ function handleBeneficios() {
         true
       )
     );
+
+    chatInput.disabled = true;
     formDate.style.display = "block";
     chatBox.appendChild(formDate);
   });
@@ -770,6 +775,8 @@ function handleDocumentos() {
         true
       )
     );
+
+    chatInput.disabled = true;
     formDate.style.display = "block";
     chatBox.appendChild(formDate);
   });
@@ -1045,6 +1052,8 @@ const handleEmailInput = (userMessage) => {
           true
         )
       );
+
+      chatInput.disabled = true;
       formProfission.style.display = "block";
       chatBox.appendChild(formProfission);
     } else {
@@ -1086,6 +1095,8 @@ const handleProfessionInput = (userMessage) => {
           true
         )
       );
+
+      chatInput.disabled = true;
       chatInput.value = "";
       formDate.style.display = "block";
       chatBox.appendChild(formDate);
@@ -1114,6 +1125,7 @@ const handleProfessionInput = (userMessage) => {
             true
           )
         );
+        chatInput.disabled = true;
         chatInput.value = "";
         formHour.style.display = "block";
         chatBox.appendChild(formHour);
@@ -1145,6 +1157,8 @@ const handleProfessionInput = (userMessage) => {
       formDateInit.style.display = "block";
       chatBox.appendChild(formDateInit);
 
+      chatInput.disabled = true;
+
       formDateInit.addEventListener(
         "change",
         (event) => {
@@ -1164,6 +1178,7 @@ const handleProfessionInput = (userMessage) => {
                 "incoming", false, true
               )
             );
+
             formDateInit.style.display = "none";
 
             formDateEnd.style.display = "block";
@@ -1191,6 +1206,7 @@ const handleProfessionInput = (userMessage) => {
                       "incoming", false, true
                     )
                   );
+
                   btnGroupUrgency.style.display = "block";
                   chatBox.appendChild(btnGroupUrgency);
                 }
@@ -1225,6 +1241,7 @@ const handleProfessionInput = (userMessage) => {
           true
         )
       );
+      chatInput.disabled = true;
       chatInput.value = "";
       formDate.style.display = "block";
       chatBox.appendChild(formDate);
@@ -1253,6 +1270,7 @@ const handleProfessionInput = (userMessage) => {
           true
         )
       );
+      chatInput.disabled = true;
       formBeneficios.style.display = "block";
       chatBox.appendChild(formBeneficios);
       chatInput.value = "";
@@ -1281,6 +1299,7 @@ const handleProfessionInput = (userMessage) => {
           true
         )
       );
+      chatInput.disabled = true;
       formDocumentos.style.display = "block";
       chatBox.appendChild(formDocumentos);
       chatInput.value = "";
