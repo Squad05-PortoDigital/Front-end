@@ -613,7 +613,7 @@ function handleBtnDate() {
     userDate = DateInsert;
     userDateToOcorrencia = DateInsert;
 
-    chatBox.appendChild(createChatLi(DateInsert, "outgoing"));
+    chatBox.appendChild(createChatLi(formatarDataParaBR(DateInsert), "outgoing"));
     btnDateInsert.disabled = true;
 
     chatBox.appendChild(
