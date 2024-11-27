@@ -1303,15 +1303,19 @@ let areOptionsInitialized = false;
 chatbotToggler.addEventListener("click", () => {
   document.body.classList.toggle("show-chatbot");
 
-  if (
-    document.body.classList.contains("show-chatbot") &&
-    !isMessageInitialized
-  ) {
-    setTimeout(() => {
-      handleMessageInit(options);
-      isMessageInitialized = true;
-      let areOptionsInitialized = false;
-    }, 1000);
+  if (document.body.classList.contains("show-chatbot")) {
+    if (!isMessageInitialized) {
+      setTimeout(() => {
+        handleMessageInit(options);
+        isMessageInitialized = true;
+      }, 1000);
+    }
+
+    if (!areOptionsInitialized) {
+      setTimeout(() => {
+        areOptionsInitialized = true;
+      }, 1200);
+    }
   }
 });
 
@@ -1329,7 +1333,14 @@ window.addEventListener("load", () => {
     localStorage.removeItem("showChatbot");
 
     setTimeout(() => {
-      handleMessageInit(options);
+      if (!isMessageInitialized) {
+        handleMessageInit(options);
+        isMessageInitialized = true;
+      }
+
+      if (!areOptionsInitialized) {
+        areOptionsInitialized = true;
+      }
     }, 1000);
   }
 });
