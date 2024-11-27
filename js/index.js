@@ -165,18 +165,6 @@ function preventButton() {
   });
 }
 
-async function dataFuncionarios() {
-  const response = await fetch("https://back-end-chatbot-deploy.up.railway.app/funcionarios");
-  const dataJson = await response.json();
-  console.log(dataJson);
-}
-
-async function dataProcessos() {
-  const response = await fetch("https://back-end-chatbot-deploy.up.railway.app/processos");
-  const dataJson = await response.json();
-  console.log(dataJson);
-}
-
 function handleGroupBtnsStatus() {
   buttonsNivelUrgency.forEach((button, index) => {
     button.addEventListener("click", () => {
@@ -1385,8 +1373,6 @@ handleBtnDate();
 handleBtnProfission();
 handleBeneficios();
 handleDocumentos();
-dataFuncionarios();
-dataProcessos();
 handleEnter();
 preventButton();
 handleChoiceUser();
